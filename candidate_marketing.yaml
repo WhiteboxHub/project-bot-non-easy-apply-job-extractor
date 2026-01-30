@@ -9,29 +9,25 @@ settings:
 candidates:
   - candidate_id: "candidate_001"
     name: "sunil"
-    linkedin_username: "example@gmail.com"
-    linkedin_password: "*****"
+    linkedin_username: "psunil55433@gmail.com"
+    linkedin_password: "Sunil4063@"
     
     # Job Keywords
     keywords:
-      - "AI/ML Engineer"
+      - "AI/ML"
       - "MLOps"
       - "Gen AI"
     
     # Locations (Zipcodes ONLY)
     locations:
-      # - "600100"
-      - "122001"
-
-      - "500032"
+      # - "560067"
+      # - "500032"
       # - "560066"
     
     run_extract_linkedin_jobs: true
 
   # - candidate_id: "candidate_002"
-  #   name: "Another Candidate"
-  #   linkedin_username: "another@example.com"
-  #   linkedin_password: "secret_password"
+  #   name: "Another Candidate"=\l[]
   #   keywords:
   #     - "Software Engineer"
   #     - "Full Stack Developer"

@@ -82,6 +82,16 @@ LOCATORS = {
     "easy_apply_button": {
         "primary": (By.XPATH, '//button[contains(@class, "jobs-apply-button")]'),
         "fallback": (By.CSS_SELECTOR, "button[aria-label*='Easy Apply']")
+    },
+    
+    "company": {
+        "primary": (By.CSS_SELECTOR, ".job-card-container__primary-description, .job-card-list__entity-lockup_subtitle, .artdeco-entity-lockup__subtitle"),
+        "fallback": (By.CSS_SELECTOR, ".job-card-container__company-name, .job-card-list__company-name, [class*='company-name']")
+    },
+    
+    "location": {
+        "primary": (By.CSS_SELECTOR, ".job-card-container__metadata-item, .job-card-container__metadata-wrapper, .artdeco-entity-lockup__caption"),
+        "fallback": (By.CSS_SELECTOR, ".job-card-container__location, .job-card-list__metadata-item")
     }
 }
 

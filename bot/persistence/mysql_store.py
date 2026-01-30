@@ -62,6 +62,10 @@ class MySQLStore:
             parts = [p.strip() for p in full_location.split(',')]
             city = parts[0]
             state = parts[1] if len(parts) > 1 else ''
+        
+        # Detect Country based on Zipcode
+        zipcode = str(job_data.get('zipcode', ''))
+        country = "USA" if len(zipcode) == 5 else "India"
 
         args = (
             job_data.get('title', 'Unknown'),
@@ -69,8 +73,8 @@ class MySQLStore:
             full_location,
             city,
             state,
-            job_data.get('zipcode', ''),
-            "India", 
+            zipcode,
+            country,
             job_data.get('url', ''),
             job_data.get('job_id', '')
         )

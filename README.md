@@ -1,16 +1,15 @@
-# LinkedIn Job Extractor & Marketing Bot
+# LinkedIn Job Extractor & Marketing Bot (Daily Automatic)
 
-A powerful automated tool to extract LinkedIn job postings and save them directly to a MySQL database and CSV files. Targeted for high-speed job data collection with anti-detection features.
+A fully automated, scheduled job extraction system designed to collect LinkedIn job links daily. It syncs with a MySQL database to manage multiple candidates and uses professional-grade anti-detection features.
 
 ## 🌟 Key Features
 
-*   **Anti-Detection**: Uses `undetected-chromedriver` and `selenium-stealth` to mimic real browser behavior.
-*   **Persistent Profiles**: Saves and reuses your Chrome session (no need to log in every time).
-*   **Aggressive Scrolling**: Smart scrolling logic that ensures every job listing on the page is loaded.
-*   **Dual Storage**: Automatically saves data to:
-    1.  **MySQL Database**: Direct insertion into your `position` table.
-    2.  **CSV Files**: Per-candidate job lists for easy viewing in Excel.
-*   **Multi-Keyword Search**: Automatically iterates through multiple job titles and locations.
+*   **100% Automatic Scheduling**: Pre-configured to run every morning at **08:20 AM**.
+*   **Modular "Trigger-Job" Architecture**: Separates the business logic from the execution trigger for maximum reliability.
+*   **Smart Selection**: Automatically pulls zip codes and credentials from your MySQL database or YAML file.
+*   **Anti-Detection**: Powered by `undetected-chromedriver` and `selenium-stealth` with persistent browser profiles.
+*   **Multi-Storage**: Saves results simultaneously to **CSV**, **MySQL**, and **SQLite**.
+*   **Dynamic Flagging**: Only processes candidates with the `run_extract_linkedin_jobs` flag set to `true` in the database.
 
 ---
 
@@ -18,68 +17,65 @@ A powerful automated tool to extract LinkedIn job postings and save them directl
 
 ### 1. Prerequisites
 - Python 3.10+
-- Google Chrome installed on your system.
-- A running MySQL database.
+- Google Chrome
+- MySQL Server
 
 ### 2. Installation
 ```bash
 pip install -r requirements.txt
+pip install schedule
 ```
 
-### 3. Configuration (.env)
-Create a `.env` file in the root directory (or update the existing one):
-```ini
-# LinkedIn Credentials (Optional if using persistent profile)
-LINKEDIN_USERNAME=your_email@gmail.com
-LINKEDIN_PASSWORD=your_password
-
-# MySQL Database Configuration
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_mysql_password
-DB_NAME=your_database_name
-DB_PORT=3306
-```
-
-### 4. Candidate Configuration (candidate_marketing.yaml)
-Manage your search terms and locations in `candidate_marketing.yaml`:
-```yaml
-candidates:
-  - candidate_id: "candidate_001"
-    name: "John Doe"
-    linkedin_username: "your_email@gmail.com"
-    linkedin_password: "your_password"
-    keywords:
-      - "AI/ML Engineer"
-      - "Python Developer"
-    locations:
-      - "Remote"
-      - "560100" # Zipcodes supported
-```
+### 3. Database Configuration (.env)
+Ensure your `.env` file contains your MySQL credentials and API keys. The bot uses these to fetch candidate marketing data and sync results.
 
 ---
 
-## ▶️ How to Run
+## ▶️ Execution Methods
 
-1. **Close all Chrome windows** (The bot needs to control the profile).
-2. Start the extraction:
-   ```bash
-   python daily_extractor.py
-   ```
-3. The bot will open Chrome, navigate to LinkedIn, and start extracting jobs. If you aren't logged in, it will pause and let you log in manually once.
+Based on the [Trigger-Job Separation](file:///C:/Users/KUMAR-MINI-PC-7/.gemini/antigravity/brain/6435329c-c43b-4a45-81d8-c18b0fa7b448/walkthrough.md) pattern, you have three ways to run the bot:
+
+### 1. ⚡ Manual Run (Immediate)
+Use this to test the bot or run an extraction right now:
+```bash
+python run_now.py
+```
+
+### 2. 🕙 Automatic Internal Scheduler
+Run this and leave the terminal open. It will wait and trigger the bot every day at **08:20 AM**:
+```bash
+python scheduler.py
+```
+
+### 3. 🛡️ Windows Task Scheduler (Recommended)
+For the most reliable "hands-off" experience, connect the provided **`trigger_bot.bat`** to your Windows Task Scheduler.
+- **Action**: Start a Program
+- **Program**: Select `trigger_bot.bat`
+- **Trigger**: Daily at 08:20 AM
 
 ---
 
-## 📂 Data Output
+## 📂 Project Architecture
 
-- **CSV**: Found in the root directory (e.g., `yourname_extracted_jobs.csv`).
-- **MySQL**: Data is inserted into the `position` table with fields parsed for `city`, `state`, and `zip`.
-- **Profiles**: Browser data is stored in `data/profiles/` to keep you logged in.
+- **`daily_extractor.py`**: The core "Job" layer. Contains extraction and sync logic.
+- **`scheduler.py`**: The internal "Trigger" for hands-off daily runs.
+- **`run_now.py`**: Shortcut for manual trigger.
+- **`trigger_bot.bat`**: Integration point for OS-level scheduling.
+- **`candidate_marketing.yaml`**: Local configuration file for candidate keywords and overrides.
 
 ---
 
-## 🔧 Troubleshooting
+## 📊 Data & Output
 
-- **Version Mismatch**: If you see a Chrome version error, the bot automatically attempts to fix it. If it fails, update your Google Chrome.
-- **MySQL Access Denied**: Double-check your `.env` credentials and ensure the `position` table exists.
-- **Bot Stuck**: Ensure no other Chrome process is using your profile folder.
+- **CSV Export**: `data/exports/extractor_job_links.csv` (All jobs merged here).
+- **MySQL Sync**: Automatically saves to the `position` table in your database.
+- **Job Tracking**: Uses a local SQLite `job_catalog.db` to ensure no duplicates are ever extracted.
+- **Profiles**: Browser sessions are stored per candidate in `data/profiles/` to persist logins.
+
+---
+
+## 🔧 Maintenance
+
+- **Adding Candidates**: Simply set the `run_extract_linkedin_jobs` flag to `true` in your `candidate_marketing` table in MySQL.
+- **Updating Keywords**: Update the `keywords` or `locations` column in the database or the `candidate_marketing.yaml` file.
+- **Browser Issue**: If Chrome fails to start, ensure no other `chrome.exe` processes are running in the Task Manager.
