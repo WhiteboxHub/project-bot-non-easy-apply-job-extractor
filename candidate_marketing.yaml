@@ -9,8 +9,8 @@ settings:
 candidates:
   - candidate_id: "candidate_001"
     name: "sunil"
-    linkedin_username: "psunil55433@gmail.com"
-    linkedin_password: "Sunil4063@"
+    linkedin_username: "example@gmail.com"
+    linkedin_password: "*****"
     
     # Job Keywords
     keywords:
@@ -20,9 +20,9 @@ candidates:
     
     # Locations (Zipcodes ONLY)
     locations:
-      # - "560067"
-      # - "500032"
-      # - "560066"
+      - "560067"
+      - "500032"
+      - "560066"
     
     run_extract_linkedin_jobs: true
 
