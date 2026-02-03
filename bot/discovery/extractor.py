@@ -29,6 +29,7 @@ class JobExtractor(Search):
         self.distance_miles = distance_miles  # Distance filter: 10, 25, 50, 100 miles
         self.store = Store()
         self.api_store = api_store if api_store else APIStore()
+        self.mysql_store = None # Will be set by caller or during extraction
         self.seen_jobs = self._load_seen_jobs()
         
         # Initialize CSV if provided
@@ -106,52 +107,27 @@ class JobExtractor(Search):
                 # --- STEP 1: Scroll to load all jobs on current page ---
                 time.sleep(3) 
                 
-                logger.info("Starting scroll routine...", step="job_extract")
-                last_height = 0
-                stuck_count = 0
+                # --- STEP 1: Scroll to load all jobs on current page ---
+                time.sleep(2) 
                 
-                for i in range(15):
-                    try:
-                        self.browser.execute_script("""
-                            try {
-                                var selectors = ['.jobs-search-results-list', '.jobs-search-results', '.scaffold-layout__list-container', 'section.jobs-search-results-list', 'div[class*="jobs-search-results-list"]'];
-                                var list = null;
-                                for (var s of selectors) {
-                                    list = document.querySelector(s);
-                                    if (list) break;
-                                }
-                                
-                                if (list) {
-                                    list.scrollTop += 600;
-                                    var items = list.querySelectorAll('li');
-                                    if (items.length > 0) {
-                                        items[items.length - 1].scrollIntoView({ behavior: 'smooth', block: 'end' });
-                                    }
-                                    return list.scrollTop + list.offsetHeight;
-                                } else {
-                                    window.scrollBy({ top: 800, behavior: 'smooth' });
-                                    return window.pageYOffset + window.innerHeight;
-                                }
-                            } catch(e) { return -1; }
-                        """)
-                        
-                        time.sleep(1.5)
-                        
-                        current_links = self.get_elements("links")
-                        if len(current_links) >= 15:
-                             break
-                             
-                        if len(current_links) == last_height:
-                            stuck_count += 1
-                        else:
-                            last_height = len(current_links)
-                            stuck_count = 0
-                        
-                        if stuck_count >= 3: break
-                    except Exception: break
+                logger.info("Starting robust scroll routine...", step="job_extract")
+                last_count = 0
+                for i in range(10): # Scroll up to 10 times
+                    self.browser.execute_script("""
+                        var list = document.querySelector('.jobs-search-results-list') || 
+                                   document.querySelector('.scaffold-layout__list-container');
+                        if (list) {
+                            list.scrollTop = list.scrollHeight;
+                        }
+                    """)
+                    time.sleep(1.5)
+                    new_count = len(self.get_elements("links"))
+                    if new_count == last_count: 
+                        break # Stop if no new jobs load
+                    last_count = new_count
 
-                logger.info("Scrolling complete.", step="job_extract")
-                time.sleep(3)
+                logger.info(f"Scrolling complete. Found {last_count} job cards to inspect.", step="job_extract")
+                time.sleep(1)
 
                 # --- STEP 2: Extract all jobs on this page ---
                 processed_job_ids_on_page = set()
@@ -186,14 +162,14 @@ class JobExtractor(Search):
                             processed_job_ids_on_page.add(job_id)
                             
                             is_easy = "Easy Apply" in link.text
-                            self.browser.execute_script("arguments[0].click();", link)
-                            time.sleep(1)
-                            
                             if is_easy:
                                 self.seen_jobs.add(job_id)
                                 continue
 
-                            # Save the job
+                            self.browser.execute_script("arguments[0].click();", link)
+                            time.sleep(1)
+                            
+                            # Save the job (Only Non-Easy Apply jobs reach this point)
                             self.save_job(job_id, link, position, location, zipcode)
                             self.seen_jobs.add(job_id)
                             extracted_on_page += 1
@@ -275,8 +251,8 @@ class JobExtractor(Search):
         else:
              formatted_location = location
 
-        # f_TPR=r86400 is the filter for Past 24 Hours
-        search_time_filter = "&f_TPR=r86400" 
+        # f_TPR=r2592000 is the filter for Past 1 Month (Ensure we find results)
+        search_time_filter = "&f_TPR=r2592000" 
         location_param = f"&location={formatted_location}"
         # Wrap keyword in quotes (%22) for strict phrase matching to avoid broad matches like UI for AI searches
         keyword_param = f"%22{position}%22"
@@ -369,15 +345,21 @@ class JobExtractor(Search):
                     writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
                     writer.writerow([job_id, title, company, location, zipcode, url, time.strftime('%Y-%m-%d %H:%M:%S'), False])
                 
-            # API Save
-            self.api_store.insert_position({
+            # API Save (Remote)
+            job_data = {
                 'title': title,
                 'company': company,
                 'location': location,
                 'zipcode': zipcode,
                 'url': url,
                 'job_id': job_id
-            })
+            }
+            if self.api_store:
+                self.api_store.insert_position(job_data)
+                
+            # MySQL Save (Direct Database)
+            if hasattr(self, 'mysql_store') and self.mysql_store:
+                self.mysql_store.insert_position(job_data)
             
             logger.info(f"Saved job: {title} at {company} ({location}) - Zipcode: {zipcode}", step="extract_job")
                 

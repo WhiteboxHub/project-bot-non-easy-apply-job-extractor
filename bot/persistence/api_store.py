@@ -8,13 +8,26 @@ load_dotenv()
 
 class APIStore:
     def __init__(self):
-        # Default to local API if not set in environment
-        self.api_url = os.getenv('API_URL', 'http://localhost:8000/positions')
-        # Ensure trailing slash if needed, though requests handles it well usually
-        if not self.api_url.endswith('/'):
-            self.api_url += '/'
+        # Use the specific API subdomain URL provided
+        self.base_api_url = os.getenv('WBL_API_URL', 'https://api.whitebox-learning.com/api').rstrip('/')
+        
+        # Based on: app.include_router(position.router, prefix="/api") 
+        # But if the URL already ends in /api, we just add /positions/
+        if self.base_api_url.endswith('/api'):
+            self.api_url = f"{self.base_api_url}/positions/"
+        else:
+            self.api_url = f"{self.base_api_url}/api/positions/"
+        
+        self.api_token = os.getenv('API_TOKEN')
+        self.secret_key = os.getenv('SECRET_KEY')
+        
+        self.headers = {
+            "Authorization": f"Bearer {self.api_token}",
+            "X-Secret-Key": self.secret_key,
+            "Content-Type": "application/json"
+        }
             
-        logger.info(f"Initialized APIStore with URL: {self.api_url}")
+        logger.info(f"Initialized APIStore for: {self.api_url}")
 
     def insert_position(self, job_data):
         """
@@ -56,12 +69,13 @@ class APIStore:
             # 4. Filter out empty values if necessary, generally API handles them or validates them.
             # Assuming the API accepts these fields.
 
-            response = requests.post(self.api_url, json=payload, timeout=10)
+            logger.info(f"Sending job to: {self.api_url}", step="api_save")
+            response = requests.post(self.api_url, json=payload, headers=self.headers, timeout=15)
             
             if response.status_code in [200, 201]:
-                logger.info(f"Saved job to API: {job_data.get('title')}", step="api_save")
+                logger.info(f"✅ Saved job to API: {job_data.get('title')}", step="api_save")
             else:
-                logger.warning(f"Failed to save job to API. Status: {response.status_code}, Response: {response.text}", step="api_save")
+                logger.warning(f"❌ Failed to save job. Status: {response.status_code}, URL: {self.api_url}, Response: {response.text[:200]}", step="api_save")
                 
         except Exception as e:
             logger.error(f"Error sending job to API: {e}", step="api_save")

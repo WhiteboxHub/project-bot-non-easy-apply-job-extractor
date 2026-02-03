@@ -18,7 +18,8 @@ class WebsiteAPIClient:
     """Client for interacting with the whitebox-learning.com API"""
     
     def __init__(self):
-        self.base_url = os.getenv("WEBSITE_URL", "https://whitebox-learning.com/")
+        # Use the specifically provided WBL_API_URL subdomain
+        self.base_url = os.getenv("WBL_API_URL", "https://api.whitebox-learning.com/api").rstrip('/')
         self.api_token = os.getenv("API_TOKEN")
         self.secret_key = os.getenv("SECRET_KEY")
         
@@ -46,63 +47,130 @@ class WebsiteAPIClient:
         """
         candidates = None
         
-        # --- Try website API first ---
+        # --- Try website API ---
         try:
-            # Try different possible API endpoints
             endpoints = [
-                "api/candidates",
-                "api/candidate-management",
-                "api/v1/candidates",
-                "api/marketing/candidates",
-                "api/job-automation/candidates",
-                "candidates"
+                "candidate/marketing/", 
+                "candidates/"
             ]
             
             for endpoint in endpoints:
-                url = f"{self.base_url}{endpoint}"
-                logger.debug(f"Attempting to fetch candidates from API: {url}")
+                url = f"{self.base_url}/{endpoint}"
+                logger.info(f"Checking API: {url}")
                 
                 try:
-                    response = requests.get(url, headers=self.headers, timeout=10)
+                    params = {"limit": 100}
+                    response = requests.get(url, headers=self.headers, params=params, timeout=15)
                     
                     if response.status_code == 200:
-                        candidates = response.json()
-                        logger.info(f"✅ Successfully fetched candidates from API: {endpoint}")
-                        break
+                        content_type = response.headers.get('Content-Type', '')
+                        if 'application/json' in content_type.lower():
+                            candidates_data = response.json()
+                            logger.info(f"✅ Found API at: {endpoint}")
+                            
+                            if isinstance(candidates_data, dict) and "data" in candidates_data:
+                                candidates = candidates_data["data"]
+                            else:
+                                candidates = candidates_data
+                            
+                            # --- SYNC TO LOCAL DB ---
+                            if candidates:
+                                self._sync_to_local_db(candidates)
+                                
+                            break
+                        else:
+                            logger.warning(f"⚠️ API {endpoint} returned 200 but Content-Type is {content_type} (likely HTML redirect).")
                     elif response.status_code in [401, 403]:
-                        logger.warning(f"❌ API Authentication failed for {endpoint} (Status {response.status_code}). Check your token/secret key.")
+                        logger.warning(f"❌ API {endpoint} Authentication failed ({response.status_code}).")
                     else:
                         logger.debug(f"API {endpoint} returned status {response.status_code}")
-                except requests.exceptions.RequestException as req_e:
-                    logger.debug(f"Connection error to {url}: {req_e}")
+                except Exception as req_e:
+                    logger.debug(f"Error connecting to {url}: {req_e}")
                     continue
             
-            if candidates:
-                # Handle different response formats
-                if isinstance(candidates, dict):
-                    candidates = candidates.get('data', candidates.get('candidates', []))
-                
-                if isinstance(candidates, list) and len(candidates) > 0:
-                    return candidates
+            if candidates and isinstance(candidates, list) and len(candidates) > 0:
+                return candidates
                     
         except Exception as e:
-            logger.warning(f"API fetch failed, will try local database: {e}")
+            logger.warning(f"API fetch failed: {e}")
 
-        # --- Fallback to local MySQL database if API fails or returns no data ---
-        logger.info("Fetching candidates from local MySQL management tables...")
+        # --- FALLBACK TO LOCAL DB ---
+        logger.info("Fetching candidates from local SQLite cache as fallback...")
+        return self._fetch_from_local_db()
+
+    def _sync_to_local_db(self, candidates: List[Dict]):
+        """Saves/Updates remote candidates to local SQLite database for caching/fallback."""
         try:
-            # We strictly want to avoid local MySQL if possible as per user request to use API
-            # But if the user insists on the logic "candidate table joined with candidate_marketing",
-            # this logic usually resides on the Server Side (API).
-            # If the user means they want this logic CLIENT side using direct DB connection:
-            # The user just said "target the api i dont want to give annt .env".
-            # So we should rely PURELY on the API response.
+            import sqlite3
+            db_path = os.path.join(os.getcwd(), 'data', 'bot_data.sqlite')
+            conn = sqlite3.connect(db_path)
+            cursor = conn.cursor()
             
-            # If API fails, we return empty list to respect "no local db credentials" rule
-            return []
-            
+            for cand in candidates:
+                # Handle nested candidate object if it's a marketing record
+                c_obj = cand.get('candidate') if isinstance(cand.get('candidate'), dict) else cand
+                
+                c_id = str(cand.get('candidate_id', cand.get('id', '')))
+                if not c_id: continue
+                
+                name = cand.get('full_name') or c_obj.get('full_name') or cand.get('name', 'Unknown')
+                email = cand.get('email') or c_obj.get('email', '')
+                username = cand.get('linkedin_username') or c_obj.get('linkedin_username') or email
+                password = cand.get('linkedin_password') or cand.get('linkedin_passwd') or c_obj.get('linkedin_password', '')
+                zipcode = cand.get('zip_code') or cand.get('zipcode') or c_obj.get('zip_code') or c_obj.get('zipcode', '')
+                run_flag = cand.get('run_extract_linkedin_jobs')
+                if run_flag is None: run_flag = True # Default to True
+                
+                # Update candidates table
+                cursor.execute("""
+                    INSERT INTO candidates (candidate_id, name, email, linkedin_username, linkedin_password, zipcode)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(candidate_id) DO UPDATE SET
+                        name=excluded.name,
+                        email=excluded.email,
+                        linkedin_username=excluded.linkedin_username,
+                        linkedin_password=excluded.linkedin_password,
+                        zipcode=excluded.zipcode
+                """, (c_id, name, email, username, password, zipcode))
+                
+                # Update marketing flag
+                cursor.execute("""
+                    INSERT INTO candidate_marketing (candidate_id, run_extract_linkedin_jobs)
+                    VALUES (?, ?)
+                    ON CONFLICT(candidate_id) DO UPDATE SET
+                        run_extract_linkedin_jobs=excluded.run_extract_linkedin_jobs
+                """, (c_id, 1 if run_flag else 0))
+                
+            conn.commit()
+            conn.close()
+            logger.info("✅ Local cache synchronized with website data.")
         except Exception as e:
-            logger.error(f"Error fetching candidates: {e}")
+            logger.warning(f"Failed to sync to local DB: {e}")
+
+    def _fetch_from_local_db(self) -> List[Dict]:
+        """Loads candidates from local SQLite when API is unavailable."""
+        try:
+            import sqlite3
+            db_path = os.path.join(os.getcwd(), 'data', 'bot_data.sqlite')
+            if not os.path.exists(db_path):
+                return []
+                
+            conn = sqlite3.connect(db_path)
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query = """
+                SELECT c.*, m.run_extract_linkedin_jobs 
+                FROM candidates c
+                LEFT JOIN candidate_marketing m ON c.candidate_id = m.candidate_id
+            """
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            conn.close()
+            
+            return [dict(row) for row in rows]
+        except Exception as e:
+            logger.error(f"Error reading from local cache: {e}")
             return []
 
     def get_candidate_zipcodes(self, candidate_id: str) -> List[str]:
@@ -122,21 +190,33 @@ class WebsiteAPIClient:
                 username = candidate.get('linkedin_username', candidate.get('email', ''))
                 password = candidate.get('linkedin_password', candidate.get('password', ''))
                 
-                # Zipcodes/Locations field name mapping - prioritizing specific fields
-                # Mapping user requested 'zip_code' to our 'locations' list
-                raw_locations = candidate.get('locations') or candidate.get('zipcodes') or candidate.get('zip_code') or []
+                # Locations/Zipcodes handling
+                # Your backend uses 'zip_code' for Candidate and the marketing record might have it nested
+                # Check candidate object directly or the marketing record fields
+                c_obj = candidate.get('candidate', {})
+                raw_locations = candidate.get('locations') or candidate.get('zipcodes') or \
+                                candidate.get('zip_code') or candidate.get('zipcode') or \
+                                c_obj.get('zip_code') or c_obj.get('zipcode') or []
                 if isinstance(raw_locations, str) or isinstance(raw_locations, int):
                     locations = [str(raw_locations)]
                 else:
                     locations = raw_locations
                 
-                # Keywords field name mapping
-                keywords = candidate.get('keywords', candidate.get('skills', []))
+                # Credentials handling
+                # Prioritize direct fields, then check nested 'candidate' object (typical for marketing records)
+                username = candidate.get('linkedin_username') or candidate.get('email') or \
+                           c_obj.get('linkedin_username') or c_obj.get('email', '')
+                password = candidate.get('linkedin_password') or candidate.get('linkedin_passwd') or \
+                           candidate.get('password') or c_obj.get('linkedin_password', '')
+                
+                # Keywords/Skills
+                # You mentioned 'keywords' in your YAML, check for 'keywords', 'skills', or 'positions'
+                keywords = candidate.get('keywords') or candidate.get('skills') or \
+                           c_obj.get('keywords') or c_obj.get('skills', [])
                 
                 transformed_candidate = {
                     'candidate_id': str(c_id),
-                    'name': candidate.get('full_name') or candidate.get('name', ''),
-                    'full_name': candidate.get('full_name') or candidate.get('name', ''),
+                    'name': candidate.get('full_name') or candidate.get('name') or c_obj.get('full_name', ''),
                     'linkedin_username': username,
                     'linkedin_password': password,
                     'keywords': keywords,
