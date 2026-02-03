@@ -20,11 +20,13 @@ class WebsiteAPIClient:
     def __init__(self):
         # Use the specifically provided WBL_API_URL subdomain
         self.base_url = os.getenv("WBL_API_URL", "https://api.whitebox-learning.com/api").rstrip('/')
-        self.api_token = os.getenv("API_TOKEN")
-        self.secret_key = os.getenv("SECRET_KEY")
+        self.api_token = (os.getenv("API_TOKEN") or "").strip()
+        self.secret_key = (os.getenv("SECRET_KEY") or "").strip()
         
-        if not self.api_token:
-            raise ValueError("API_TOKEN not found in environment variables")
+        if not self.api_token or not self.secret_key:
+            logger.error("❌ CRITICAL: API_TOKEN or SECRET_KEY missing in .env file!")
+            if not self.api_token: logger.error("Missing: API_TOKEN")
+            if not self.secret_key: logger.error("Missing: SECRET_KEY")
         
         # Ensure base URL ends with /
         if not self.base_url.endswith('/'):
@@ -32,9 +34,9 @@ class WebsiteAPIClient:
         
         self.headers = {
             "Authorization": f"Bearer {self.api_token}",
-            "Content-Type": "application/json",
             "X-Secret-Key": self.secret_key,
-            "X-API-Key": self.secret_key
+            "X-API-Key": self.secret_key, # Some backends use this instead
+            "Content-Type": "application/json"
         }
     
     def fetch_candidates(self) -> List[Dict]:
@@ -49,18 +51,19 @@ class WebsiteAPIClient:
         
         # --- Try website API ---
         try:
-            endpoints = [
-                "candidate/marketing/", 
-                "candidates/"
-            ]
+            # The specific endpoint confirmed to work with Bearer+Secret
+            endpoints = ["candidate/marketing/", "candidates/"]
             
             for endpoint in endpoints:
-                url = f"{self.base_url}/{endpoint}"
+                # Ensure base_url ends with / and endpoint does not start with /
+                base = self.base_url.rstrip('/') + '/'
+                path = endpoint.lstrip('/')
+                url = base + path
+                
                 logger.info(f"Checking API: {url}")
                 
                 try:
-                    params = {"limit": 100}
-                    response = requests.get(url, headers=self.headers, params=params, timeout=15)
+                    response = requests.get(url, headers=self.headers, timeout=10)
                     
                     if response.status_code == 200:
                         content_type = response.headers.get('Content-Type', '')
@@ -81,7 +84,7 @@ class WebsiteAPIClient:
                         else:
                             logger.warning(f"⚠️ API {endpoint} returned 200 but Content-Type is {content_type} (likely HTML redirect).")
                     elif response.status_code in [401, 403]:
-                        logger.warning(f"❌ API {endpoint} Authentication failed ({response.status_code}).")
+                        logger.debug(f"❌ API {endpoint} Authentication failed ({response.status_code}).")
                     else:
                         logger.debug(f"API {endpoint} returned status {response.status_code}")
                 except Exception as req_e:
