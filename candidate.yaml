@@ -1,0 +1,37 @@
+# Candidate Marketing Configuration
+# Use this file to manage candidates for the Job Extraction Scheduler
+
+# Global Settings (Used if not specified in candidate block)
+settings:
+  distance_miles: 25
+  max_applications_per_run: 50
+
+candidates:
+  - candidate_id: "candidate_001"
+    name: "John Doe"
+    linkedin_username: "your_linkedin_email@example.com"
+    linkedin_password: "your_secure_password_here"
+    
+    # Job Keywords
+    keywords:
+      - "AI/ML"
+      - "MLOps"
+      - "Gen AI"
+    
+    # Locations (Zipcodes ONLY)
+    locations:
+      # - "94586"
+      - "94566"
+      - "54539"
+    
+    run_extract_linkedin_jobs: true
+
+  # - candidate_id: "candidate_002"
+  #   name: "Another Candidate"=\l[]
+  #   keywords:
+  #     - "Software Engineer"
+  #     - "Full Stack Developer"
+  #   locations:
+  #     - "Mumbai, 400001"
+  #     - "Pune, 411001"
+  #   run_extract_linkedin_jobs: false

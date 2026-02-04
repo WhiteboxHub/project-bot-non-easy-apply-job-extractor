@@ -104,29 +104,46 @@ class JobExtractor(Search):
                     logger.info("No more jobs found for this search.", step="job_extract", event="no_results")
                     break
 
-                # --- STEP 1: Scroll to load all jobs on current page ---
-                time.sleep(3) 
+                # --- STEP 1: Optimized scroll to load all jobs on current page ---
+                time.sleep(2)
                 
-                # --- STEP 1: Scroll to load all jobs on current page ---
-                time.sleep(2) 
+                logger.info("Starting scroll routine...", step="job_extract")
                 
-                logger.info("Starting robust scroll routine...", step="job_extract")
                 last_count = 0
-                for i in range(10): # Scroll up to 10 times
+                stable_iterations = 0
+                max_scrolls = 20  # Maximum scrolls to prevent infinite loops
+                
+                for scroll_num in range(max_scrolls):
+                    # Scroll to bottom
                     self.browser.execute_script("""
                         var list = document.querySelector('.jobs-search-results-list') || 
-                                   document.querySelector('.scaffold-layout__list-container');
+                                   document.querySelector('.scaffold-layout__list-container') ||
+                                   document.querySelector('.jobs-search__results-list');
                         if (list) {
                             list.scrollTop = list.scrollHeight;
+                        } else {
+                            window.scrollTo(0, document.body.scrollHeight);
                         }
                     """)
-                    time.sleep(1.5)
+                    time.sleep(1.2)  # Balanced wait time
+                    
                     new_count = len(self.get_elements("links"))
-                    if new_count == last_count: 
-                        break # Stop if no new jobs load
+                    
+                    # If count hasn't changed for 2 consecutive checks, we're done
+                    if new_count == last_count:
+                        stable_iterations += 1
+                        if stable_iterations >= 2:
+                            break
+                    else:
+                        stable_iterations = 0
+                    
                     last_count = new_count
+                    
+                    # Early exit if we have a full page (25 jobs)
+                    if last_count >= 25:
+                        break
 
-                logger.info(f"Scrolling complete. Found {last_count} job cards to inspect.", step="job_extract")
+                logger.info(f"✅ Scrolling complete. Found {last_count} job cards to inspect.", step="job_extract")
                 time.sleep(1)
 
                 # --- STEP 2: Extract all jobs on this page ---
@@ -251,8 +268,8 @@ class JobExtractor(Search):
         else:
              formatted_location = location
 
-        # f_TPR=r2592000 is the filter for Past 1 Month (Ensure we find results)
-        search_time_filter = "&f_TPR=r2592000" 
+        # f_TPR=r86400 is the filter for Past 24 Hours
+        search_time_filter = "&f_TPR=r86400" 
         location_param = f"&location={formatted_location}"
         # Wrap keyword in quotes (%22) for strict phrase matching to avoid broad matches like UI for AI searches
         keyword_param = f"%22{position}%22"

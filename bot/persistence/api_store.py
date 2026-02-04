@@ -4,30 +4,22 @@ import logging
 from bot.utils.logger import logger
 from dotenv import load_dotenv
 
+from bot.api.base_client import BaseAPIClient
+
 load_dotenv()
 
 class APIStore:
     def __init__(self):
-        # Use the specific API subdomain URL provided
-        self.base_api_url = os.getenv('WBL_API_URL', 'https://api.whitebox-learning.com/api').rstrip('/')
-        
-        # Based on: app.include_router(position.router, prefix="/api") 
-        # But if the URL already ends in /api, we just add /positions/
-        if self.base_api_url.endswith('/api'):
-            self.api_url = f"{self.base_api_url}/positions/"
+        self.client = BaseAPIClient()
+
+        # Based on: app.include_router(position.router, prefix="/api")
+        # If base URL already ends in /api, we just add /positions/
+        if self.client.base_url.endswith('/api'):
+            self.positions_endpoint = "positions/"
         else:
-            self.api_url = f"{self.base_api_url}/api/positions/"
-        
-        self.api_token = os.getenv('API_TOKEN')
-        self.secret_key = os.getenv('SECRET_KEY')
-        
-        self.headers = {
-            "Authorization": f"Bearer {self.api_token}",
-            "X-Secret-Key": self.secret_key,
-            "Content-Type": "application/json"
-        }
-            
-        logger.info(f"Initialized APIStore for: {self.api_url}")
+            self.positions_endpoint = "api/positions/"
+
+        logger.info(f"Initialized APIStore for: {self.client.build_url(self.positions_endpoint)}")
 
     def insert_position(self, job_data):
         """
@@ -69,13 +61,16 @@ class APIStore:
             # 4. Filter out empty values if necessary, generally API handles them or validates them.
             # Assuming the API accepts these fields.
 
-            logger.info(f"Sending job to: {self.api_url}", step="api_save")
-            response = requests.post(self.api_url, json=payload, headers=self.headers, timeout=15)
+            logger.info(f"Sending job to: {self.client.build_url(self.positions_endpoint)}", step="api_save")
+            response = self.client.post(self.positions_endpoint, json=payload, timeout=15)
             
             if response.status_code in [200, 201]:
                 logger.info(f"✅ Saved job to API: {job_data.get('title')}", step="api_save")
             else:
-                logger.warning(f"❌ Failed to save job. Status: {response.status_code}, URL: {self.api_url}, Response: {response.text[:200]}", step="api_save")
+                logger.warning(
+                    f"❌ Failed to save job. Status: {response.status_code}, URL: {self.client.build_url(self.positions_endpoint)}, Response: {response.text[:200]}",
+                    step="api_save"
+                )
                 
         except Exception as e:
             logger.error(f"Error sending job to API: {e}", step="api_save")

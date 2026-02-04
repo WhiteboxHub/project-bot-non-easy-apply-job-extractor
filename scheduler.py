@@ -9,10 +9,10 @@ def start_scheduler():
     # This will trigger the job every day at the specified time
     schedule.every().day.at("08:37").do(run_extraction)
     
-    logger.info("📅 [TRIGGER] Scheduler initialized.")
-    logger.info("🕙 Next run scheduled for: 08:37 AM Daily.")
-    logger.info("⚠️ Note: If you start this script AFTER the time, it will wait 24 hours.")
-    logger.info("🚀 System is now 100% automatic. Keep this window open.")
+    logger.info("[TRIGGER] Scheduler initialized.")
+    logger.info("Next run scheduled for: 08:37 AM Daily.")
+    logger.info("Note: If you start this script AFTER the time, it will wait 24 hours.")
+    logger.info("System is now 100% automatic. Keep this window open.")
 
     # Optional: Run immediately on startup if you want to see results now
     # run_extraction()

@@ -9,6 +9,8 @@ import logging
 from typing import List, Dict, Optional
 from dotenv import load_dotenv
 
+from bot.api.base_client import BaseAPIClient
+
 load_dotenv()
 
 logger = logging.getLogger(__name__)
@@ -18,26 +20,7 @@ class WebsiteAPIClient:
     """Client for interacting with the whitebox-learning.com API"""
     
     def __init__(self):
-        # Use the specifically provided WBL_API_URL subdomain
-        self.base_url = os.getenv("WBL_API_URL", "https://api.whitebox-learning.com/api").rstrip('/')
-        self.api_token = (os.getenv("API_TOKEN") or "").strip()
-        self.secret_key = (os.getenv("SECRET_KEY") or "").strip()
-        
-        if not self.api_token or not self.secret_key:
-            logger.error("❌ CRITICAL: API_TOKEN or SECRET_KEY missing in .env file!")
-            if not self.api_token: logger.error("Missing: API_TOKEN")
-            if not self.secret_key: logger.error("Missing: SECRET_KEY")
-        
-        # Ensure base URL ends with /
-        if not self.base_url.endswith('/'):
-            self.base_url += '/'
-        
-        self.headers = {
-            "Authorization": f"Bearer {self.api_token}",
-            "X-Secret-Key": self.secret_key,
-            "X-API-Key": self.secret_key, # Some backends use this instead
-            "Content-Type": "application/json"
-        }
+        self.client = BaseAPIClient()
     
     def fetch_candidates(self) -> List[Dict]:
         """
@@ -55,15 +38,11 @@ class WebsiteAPIClient:
             endpoints = ["candidate/marketing/", "candidates/"]
             
             for endpoint in endpoints:
-                # Ensure base_url ends with / and endpoint does not start with /
-                base = self.base_url.rstrip('/') + '/'
-                path = endpoint.lstrip('/')
-                url = base + path
-                
+                url = self.client.build_url(endpoint)
                 logger.info(f"Checking API: {url}")
                 
                 try:
-                    response = requests.get(url, headers=self.headers, timeout=10)
+                    response = self.client.get(endpoint, timeout=10)
                     
                     if response.status_code == 200:
                         content_type = response.headers.get('Content-Type', '')
@@ -97,9 +76,9 @@ class WebsiteAPIClient:
         except Exception as e:
             logger.warning(f"API fetch failed: {e}")
 
-        # --- FALLBACK TO LOCAL DB ---
-        logger.info("Fetching candidates from local SQLite cache as fallback...")
-        return self._fetch_from_local_db()
+        # --- NO LOCAL FALLBACK (PRODUCTION ONLY) ---
+        logger.error("API authentication failed. No local fallback enabled; returning empty list.")
+        return []
 
     def _sync_to_local_db(self, candidates: List[Dict]):
         """Saves/Updates remote candidates to local SQLite database for caching/fallback."""
@@ -273,4 +252,6 @@ if __name__ == "__main__":
     print(f"\nTotal Candidates Ready: {len(candidates)}")
     for c in candidates[:3]:
         print(f"- {c['candidate_id']}: {c['linkedin_username']} | Zips: {c['locations']}")
+
+
 

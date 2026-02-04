@@ -1,82 +1,185 @@
-# LinkedIn Job Extractor & Marketing Bot (Daily Automatic)
+# LinkedIn Job Extractor Bot
 
-A fully automated, scheduled job extraction system designed to collect LinkedIn job links daily. It syncs with a MySQL database to manage multiple candidates and uses professional-grade anti-detection features.
+A Python-based bot that automatically extracts LinkedIn job postings and sends them to your backend API. Built with Selenium and anti-detection features to avoid bot detection.
 
-## 🌟 Key Features
+## Features
 
-*   **100% Automatic Scheduling**: Pre-configured to run every morning at **08:20 AM**.
-*   **Modular "Trigger-Job" Architecture**: Separates the business logic from the execution trigger for maximum reliability.
-*   **Smart Selection**: Automatically pulls zip codes and credentials from your MySQL database or YAML file.
-*   **Anti-Detection**: Powered by `undetected-chromedriver` and `selenium-stealth` with persistent browser profiles.
-*   **Multi-Storage**: Saves results simultaneously to **CSV**, **MySQL**, and **SQLite**.
-*   **Dynamic Flagging**: Only processes candidates with the `run_extract_linkedin_jobs` flag set to `true` in the database.
+- 🤖 **Automated Job Extraction** - Searches LinkedIn and extracts job details
+- 🔒 **Anti-Detection** - Uses undetected-chromedriver and selenium-stealth
+- 🌐 **API Integration** - Sends extracted jobs to your backend API
+- 📊 **Metrics Tracking** - Detailed reports of extraction runs
+- ⏰ **Scheduling** - Run manually or schedule daily extractions
+- 💾 **Duplicate Prevention** - Tracks extracted jobs to avoid re-processing
 
----
+## Prerequisites
 
-## 🛠️ Setup Instructions
+- Python 3.10 or higher
+- Google Chrome browser
+- Backend API for storing job data
 
-### 1. Prerequisites
-- Python 3.10+
-- Google Chrome
-- MySQL Server
+## Installation
 
-### 2. Installation
+1. **Clone the repository**
 ```bash
-pip install -r requirements.txt
-pip install schedule
+git clone <your-repo-url>
+cd project-bot-easy-apply-python-webdriver
 ```
 
-### 3. Database Configuration (.env)
-Ensure your `.env` file contains your MySQL credentials and API keys. The bot uses these to fetch candidate marketing data and sync results.
+2. **Create virtual environment**
+```bash
+python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # macOS/Linux
+```
 
----
+3. **Install dependencies**
+```bash
+pip install -r requirements.txt
+```
 
-## ▶️ Execution Methods
+4. **Configure environment variables**
 
-Based on the [Trigger-Job Separation](file:///C:/Users/KUMAR-MINI-PC-7/.gemini/antigravity/brain/6435329c-c43b-4a45-81d8-c18b0fa7b448/walkthrough.md) pattern, you have three ways to run the bot:
+Copy `.env.example` to `.env` and add your credentials:
+```bash
+SECRET_KEY=your_secret_key_here
+WBL_API_URL=https://api.whitebox-learning.com/api
+API_TOKEN=your_api_token_here
+```
 
-### 1. ⚡ Manual Run (Immediate)
-**Use this command to run the bot:**
+5. **Configure candidates**
+
+Edit `candidate.yaml` with your LinkedIn credentials and job search criteria:
+```yaml
+candidates:
+  - candidate_id: "candidate_001"
+    name: "Your Name"
+    linkedin_username: "your_email@example.com"
+    linkedin_password: "your_password"
+    keywords:
+      - "AI/ML"
+      - "Software Engineer"
+    locations:
+      - "94566"  # Zip codes
+      - "10001"
+    run_extract_linkedin_jobs: true
+```
+
+## Usage
+
+### Run Immediately
 ```bash
 python run_now.py
 ```
-*Note: This will execute the extraction process immediately and save results to `data/exports/extractor_job_links.csv`.*
 
-### 2. 🕙 Automatic Internal Scheduler
-Run this and leave the terminal open. It will wait and trigger the bot every day at **08:20 AM**:
+### Schedule Daily Runs (8:20 AM)
 ```bash
 python scheduler.py
 ```
 
-### 3. 🛡️ Windows Task Scheduler (Recommended)
-For the most reliable "hands-off" experience, connect the provided **`trigger_bot.bat`** to your Windows Task Scheduler.
-- **Action**: Start a Program
-- **Program**: Select `trigger_bot.bat`
-- **Trigger**: Daily at 08:20 AM
+### Windows Task Scheduler
+1. Open Task Scheduler
+2. Create new task
+3. Set action to run `trigger_bot.bat`
+4. Set trigger to daily at 8:20 AM
 
----
+## Project Structure
 
-## 📂 Project Architecture
+```
+project-bot-easy-apply-python-webdriver/
+├── bot/                    # Core bot modules
+│   ├── api/               # API client
+│   ├── core/              # Browser and session management
+│   ├── discovery/         # Job extraction logic
+│   ├── persistence/       # Data storage
+│   └── utils/             # Utilities and helpers
+├── data/                  # Data storage
+│   ├── exports/           # CSV exports
+│   └── profiles/          # Browser profiles
+├── daily_extractor.py     # Main extraction script
+├── scheduler.py           # Scheduling script
+├── run_now.py             # Manual run script
+├── candidate.yaml         # Candidate configuration
+├── .env                   # Environment variables (not in Git)
+├── .env.example           # Environment template
+└── requirements.txt       # Python dependencies
+```
 
-- **`daily_extractor.py`**: The **Core Engine**. Contains the actual logic to open the browser, find jobs, and save them (`run_extraction` function).
-- **`scheduler.py`**: The internal "Trigger" for hands-off daily runs.
-- **`run_now.py`**: The **Manual Switch**. A simple shortcut that imports and runs the engine immediately. Use this when you want to run the bot *now* instead of waiting for the schedule.
-- **`trigger_bot.bat`**: Integration point for OS-level scheduling.
-- **`candidate_marketing.yaml`**: Local configuration file for candidate keywords and overrides.
+## Configuration
 
----
+### Environment Variables (`.env`)
 
-## 📊 Data & Output
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `SECRET_KEY` | API secret key | Yes |
+| `WBL_API_URL` | Backend API URL | Yes |
+| `API_TOKEN` | API authentication token | Yes |
+| `DISTANCE_MILES` | Job search radius | No (default: 50) |
+| `DRY_RUN` | Test mode without saving | No (default: false) |
 
-- **CSV Export**: `data/exports/extractor_job_links.csv` (All jobs merged here).
-- **MySQL Sync**: Automatically saves to the `position` table in your database.
-- **Job Tracking**: Uses a local SQLite `job_catalog.db` to ensure no duplicates are ever extracted.
-- **Profiles**: Browser sessions are stored per candidate in `data/profiles/` to persist logins.
+### Candidate Settings (`candidate.yaml`)
 
----
+- `candidate_id`: Unique identifier
+- `name`: Candidate name
+- `linkedin_username`: LinkedIn email
+- `linkedin_password`: LinkedIn password
+- `keywords`: Job search keywords (list)
+- `locations`: Zip codes to search (list)
+- `run_extract_linkedin_jobs`: Enable/disable extraction (true/false)
 
-## 🔧 Maintenance
+## How It Works
 
-- **Adding Candidates**: Simply set the `run_extract_linkedin_jobs` flag to `true` in your `candidate_marketing` table in MySQL.
-- **Updating Keywords**: Update the `keywords` or `locations` column in the database or the `candidate_marketing.yaml` file.
-- **Browser Issue**: If Chrome fails to start, ensure no other `chrome.exe` processes are running in the Task Manager.
+1. **Loads candidates** from `candidate.yaml`
+2. **Validates environment** and credentials
+3. **Launches Chrome** with anti-detection features
+4. **Logs into LinkedIn** using persistent browser profiles
+5. **Searches for jobs** based on keywords and locations
+6. **Extracts job details** (title, company, location, URL)
+7. **Sends to API** for storage
+8. **Saves to CSV** for backup
+9. **Tracks duplicates** to avoid re-extraction
+10. **Generates metrics report** with statistics
+
+## Output
+
+- **CSV Export**: `data/exports/extractor_job_links.csv`
+- **API**: Jobs sent to your backend endpoint
+- **Logs**: Console output with detailed progress
+- **Metrics**: End-of-run summary with statistics
+
+## Troubleshooting
+
+### Bot is detected by LinkedIn
+- Ensure `selenium-stealth` is installed
+- Increase delays between actions
+- Use residential proxy (not included)
+
+### No jobs found
+- Verify zip codes are valid
+- Check keywords are not too specific
+- Ensure `DISTANCE_MILES` is reasonable (25-50)
+
+### API authentication failed
+- Verify `API_TOKEN` in `.env` is correct
+- Check `WBL_API_URL` is accessible
+- Ensure token hasn't expired
+
+### Chrome fails to start
+- Close all Chrome instances
+- Delete browser profile: `rm -rf data/profiles/candidate_001`
+- Update Chrome to latest version
+
+## Security Notes
+
+⚠️ **Important**: 
+- Never commit `.env` with real credentials (it's in `.gitignore`)
+- `candidate.yaml` contains dummy credentials in Git - replace with your real credentials locally
+- Keep your API tokens secure
+- Use strong passwords
+
+## License
+
+Apache License 2.0 - See [LICENSE](LICENSE) file for details.
+
+## Support
+
+For issues or questions, please check the troubleshooting section or open an issue on GitHub.

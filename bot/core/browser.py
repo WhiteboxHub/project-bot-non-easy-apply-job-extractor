@@ -40,8 +40,9 @@ class Browser:
             log.info(f"Using proxy: {self.proxy_config.name}")
 
         try:
-            # Force version to match installed Chrome (144) to avoid "supports Chrome version 145" error
-            driver = uc.Chrome(options=options, version_main=144)
+            # Let undetected-chromedriver auto-detect the installed Chrome version
+            # This avoids hard failures when Chrome updates.
+            driver = uc.Chrome(options=options)
             log.info("Chrome initialized successfully")
         except Exception as e:
             log.error(f"Failed to initialize undetected-chromedriver: {e}")
@@ -66,4 +67,5 @@ class Browser:
         )
         
         return driver
+
 

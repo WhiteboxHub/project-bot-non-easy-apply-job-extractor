@@ -2,93 +2,62 @@ import logging
 import os
 import time
 import re
+import yaml
 from bot.utils.logger import logger
 from bot.core.browser import Browser
 from bot.core.session import Session
 from bot.discovery.extractor import JobExtractor
 from bot.persistence.api_store import APIStore
-from bot.api.website_client import fetch_candidates_from_api
 from dotenv import load_dotenv
+
+# Import new utilities
+from bot.utils.startup_validation import run_startup_validation
+from bot.utils.metrics import metrics
 
 load_dotenv()
 
-def get_env_keywords():
-    kw_str = os.getenv("DEFAULT_KEYWORDS", "AI/ML Engineer, MLOps, Gen AI")
-    return [k.strip() for k in kw_str.split(',') if k.strip()]
+# Run startup validation
+run_startup_validation(strict=True)
 
-def load_candidates_from_db():
+def load_candidates_from_yaml():
     """
-    Primary Source: Website API / Local DB Cache.
-    Settings: Loaded from .env.
+    Load candidates from 'candidate.yaml'.
     """
-    dynamic_candidates = []
+    yaml_path = os.path.join(os.getcwd(), 'candidate.yaml')
+    if not os.path.exists(yaml_path):
+        logger.error(f"candidate.yaml not found at {yaml_path}")
+        return [], {}
+
     try:
-        dynamic_candidates = fetch_candidates_from_api()
-        # Filter: Only run if the database flag run_extract_linkedin_jobs is True
-        dynamic_candidates = [c for c in dynamic_candidates if c.get('run_extract_linkedin_jobs', True)]
-        logger.info(f"Loaded {len(dynamic_candidates)} candidates from Database/API with 'Run' flag enabled.")
+        with open(yaml_path, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f) or {}
+            
+        candidates = data.get('candidates', [])
+        settings = data.get('settings', {})
+        
+        # Filter: Only run if run_extract_linkedin_jobs is True (default to False if missing, safety first)
+        active_candidates = []
+        for c in candidates:
+            if c.get('run_extract_linkedin_jobs', False):
+                active_candidates.append(c)
+        
+        logger.info(f"Loaded {len(active_candidates)} active candidates from YAML.")
+        return active_candidates, settings
+        
     except Exception as e:
-        logger.warning(f"Could not load dynamic candidates: {e}")
-
-    final_candidates = []
-    default_keywords = get_env_keywords()
-    
-    for dc in dynamic_candidates:
-        if not isinstance(dc, dict): continue
-        
-        # --- SMART PARSER FOR COMBINED STRINGS ---
-        # Handles: "keywords:K1,K2|560100,500032" OR ["keywords:...|..."] 
-        raw_val = dc.get('locations') or dc.get('zipcode') or dc.get('zip_code') or []
-        
-        # Normalize to list of strings
-        if isinstance(raw_val, str):
-            raw_val = [raw_val]
-        
-        final_locs = []
-        parsed_keywords = []
-        
-        if isinstance(raw_val, list):
-            for item in raw_val:
-                if isinstance(item, str) and '|' in item:
-                    logger.info(f"🔍 Splitting combined data for {dc.get('candidate_id', 'unknown')}...")
-                    parts = item.split('|')
-                    # Extract Keywords
-                    kw_part = parts[0].replace('keywords:', '').strip()
-                    if kw_part:
-                        parsed_keywords.extend([k.strip() for k in kw_part.split(',') if k.strip()])
-                    # Extract Zipcodes
-                    loc_part = parts[1].replace('zipcode:', '').strip()
-                    if loc_part:
-                        zips = [z.strip() for z in loc_part.split(',') if z.strip()]
-                        final_locs.extend(zips)
-                else:
-                    final_locs.append(str(item))
-        
-        dc['locations'] = final_locs
-        if parsed_keywords:
-            dc['keywords'] = parsed_keywords
-
-        # Fallback to .env settings if missing
-        if not dc.get('keywords'):
-            dc['keywords'] = default_keywords
-        
-        if dc.get('locations'):
-            final_candidates.append(dc)
-        else:
-            logger.warning(f"No location data for candidate {dc.get('candidate_id')}")
-
-    return final_candidates
+        logger.error(f"Error loading candidate.yaml: {e}")
+        return [], {}
 
 def run_extraction():
-    # Load global settings from .env
-    env_dist = int(os.getenv("DISTANCE_MILES", 50))
-    env_max_apps = int(os.getenv("MAX_APPLICATIONS_PER_RUN", 50))
+    # Load candidates and settings from YAML
+    candidates, yaml_settings = load_candidates_from_yaml()
+    
+    # Global Settings: YAML > ENV > Default
+    env_dist = yaml_settings.get('distance_miles') or int(os.getenv("DISTANCE_MILES", 50))
+    env_max_apps = yaml_settings.get('max_applications_per_run') or int(os.getenv("MAX_APPLICATIONS_PER_RUN", 50))
     
     # Initialize stores
     api_store = APIStore()
-    
-    # Load primary candidates from DB/API
-    candidates = load_candidates_from_db()
     
     if not candidates:
         logger.error("No candidates found to process.")
@@ -101,13 +70,16 @@ def run_extraction():
                 candidate_id = cand.get('candidate_id', 'unknown')
                 username = cand.get('linkedin_username')
                 password = cand.get('linkedin_password')
-                keywords = cand.get('keywords')
+                keywords = cand.get('keywords', [])
                 locations = cand.get('locations', [])
+                
+                # Start metrics tracking for this candidate
+                run_metrics = metrics.start_run(candidate_id, keywords, locations)
                 
                 # Check if login is possible
                 can_login = username and password and password != "*****"
                 
-                # Use individual or env limit
+                # Use individual limit or global limit
                 max_total_limit = cand.get('max_applications_per_run') or env_max_apps
                 
                 logger.info(f"--- Processing Candidate: {candidate_id} ({username if username else 'No Login'}) ---")
@@ -127,7 +99,7 @@ def run_extraction():
                 jobs_per_zip = 999 
                 total_candidate_extracted = 0
                 
-                # Use env distance
+                # Use individual distance or global distance
                 max_dist = cand.get('distance_miles') or env_dist
                 dist_list = [5, 10, 25, 50, 100]
                 dist_list = [d for d in dist_list if d <= max_dist]
@@ -183,7 +155,8 @@ def run_extraction():
                             location_extraction_total += newly_found
                             total_candidate_extracted += newly_found
                         
-                        remaining_locations.pop(0)
+                        if remaining_locations:
+                             remaining_locations.pop(0)
                         time.sleep(5)
 
                     except Exception as e:
@@ -196,17 +169,25 @@ def run_extraction():
                                 except: pass
                             browser = None
                         else:
-                            remaining_locations.pop(0)
+                            if remaining_locations:
+                                remaining_locations.pop(0)
                             if browser:
                                 try: browser.driver.quit()
                                 except: pass
                             browser = None
 
+
                 if browser:
                     try: browser.driver.quit()
                     except: pass
+                
+                # Finalize metrics for this candidate
+                metrics.end_run()
+                
             except Exception as cand_e:
                 logger.error(f"❌ Critical error processing candidate {cand.get('candidate_id')}: {cand_e}")
+                # Finalize metrics even on error
+                metrics.end_run()
                 continue
 
     finally:
