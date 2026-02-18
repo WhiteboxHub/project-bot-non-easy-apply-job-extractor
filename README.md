@@ -71,7 +71,8 @@ candidates:
 python run_now.py
 ```
 
-### Schedule Daily Runs (8:20 AM)
+### Schedule Daily Runs
+The bot can be scheduled to run daily at a specific time (configured in `.env`):
 ```bash
 python scheduler.py
 ```
@@ -80,7 +81,7 @@ python scheduler.py
 1. Open Task Scheduler
 2. Create new task
 3. Set action to run `trigger_bot.bat`
-4. Set trigger to daily at 8:20 AM
+4. Set trigger to daily at your preferred time (recommended: same as `SCHEDULER_TIME`)
 
 ## Project Structure
 
@@ -113,6 +114,7 @@ project-bot-easy-apply-python-webdriver/
 | `SECRET_KEY` | API secret key | Yes |
 | `WBL_API_URL` | Backend API URL | Yes |
 | `API_TOKEN` | API authentication token | Yes |
+| `SCHEDULER_TIME` | Daily run time (HH:MM) | No (default: "09:00") |
 | `DISTANCE_MILES` | Job search radius | No (default: 50) |
 | `DRY_RUN` | Test mode without saving | No (default: false) |
 

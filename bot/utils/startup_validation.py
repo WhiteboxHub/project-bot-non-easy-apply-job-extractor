@@ -5,6 +5,7 @@ Ensures all critical environment variables are present before execution.
 
 import os
 import sys
+import yaml
 from typing import List, Tuple
 from dotenv import load_dotenv
 
@@ -68,24 +69,30 @@ def validate_configuration() -> Tuple[bool, List[str]]:
     """
     warnings = []
     
-    # Check numeric configurations
+    # Try to load YAML settings for better validation
+    yaml_settings = {}
     try:
-        distance = int(os.getenv("DISTANCE_MILES", "50"))
+        if os.path.exists("candidate.yaml"):
+            with open("candidate.yaml", 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f) or {}
+                yaml_settings = data.get('settings', {})
+    except:
+        pass
+
+    # Check numeric configurations: YAML > ENV > Default
+    try:
+        distance = yaml_settings.get('distance_miles') or int(os.getenv("DISTANCE_MILES", "50"))
         if distance < 1 or distance > 100:
             warnings.append(f"⚠️  DISTANCE_MILES={distance} is unusual (expected 1-100)")
     except ValueError:
         warnings.append("⚠️  DISTANCE_MILES is not a valid number")
     
-    try:
-        max_apps = int(os.getenv("MAX_APPLICATIONS_PER_RUN", "50"))
-        if max_apps < 1 or max_apps > 1000:
-            warnings.append(f"⚠️  MAX_APPLICATIONS_PER_RUN={max_apps} is unusual (expected 1-1000)")
-    except ValueError:
-        warnings.append("⚠️  MAX_APPLICATIONS_PER_RUN is not a valid number")
-    
     # Check dry run mode
-    dry_run = os.getenv("DRY_RUN", "false").lower()
-    if dry_run == "true":
+    dry_run = yaml_settings.get('dry_run')
+    if dry_run is None:
+        dry_run = os.getenv("DRY_RUN", "false").lower() == "true"
+        
+    if dry_run:
         warnings.append("ℹ️  DRY_RUN mode is ENABLED - no data will be saved")
     
     return True, warnings
@@ -101,9 +108,21 @@ def run_startup_validation(strict: bool = True) -> bool:
     Returns:
         True if all validations passed, False otherwise
     """
-    # Check if validation is enabled
-    if os.getenv("VALIDATE_SECRETS_AT_STARTUP", "true").lower() != "true":
-        print("ℹ️  Startup validation is disabled (VALIDATE_SECRETS_AT_STARTUP=false)")
+    # Check YAML first for validation setting
+    validate_enabled = True
+    try:
+        if os.path.exists("candidate.yaml"):
+            with open("candidate.yaml", 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f) or {}
+                validate_enabled = data.get('settings', {}).get('validate_secrets_at_startup', True)
+    except:
+        pass
+
+    # Check if validation is enabled (YAML setting overrides ENV)
+    if not validate_enabled or os.getenv("VALIDATE_SECRETS_AT_STARTUP", "true").lower() != "true":
+        # Only log if explicitly disabled
+        if not validate_enabled or os.getenv("VALIDATE_SECRETS_AT_STARTUP") == "false":
+            print("ℹ️  Startup validation is disabled (via candidate.yaml or ENV)")
         return True
     
     print("=" * 60)

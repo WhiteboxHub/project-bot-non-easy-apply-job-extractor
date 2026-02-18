@@ -40,13 +40,18 @@ class Browser:
             log.info(f"Using proxy: {self.proxy_config.name}")
 
         try:
-            # Let undetected-chromedriver auto-detect the installed Chrome version
-            # This avoids hard failures when Chrome updates.
-            driver = uc.Chrome(options=options)
-            log.info("Chrome initialized successfully")
+            # Attempt to auto-detect version to match browser exactly
+            # This fixes the "ChromeDriver only supports version X" error
+            driver = uc.Chrome(options=options, version_main=144) 
+            log.info("Chrome initialized successfully with forced version 144")
         except Exception as e:
-            log.error(f"Failed to initialize undetected-chromedriver: {e}")
-            raise e
+            log.warning(f"Failed with forced version 144, trying auto-detection: {e}")
+            try:
+                driver = uc.Chrome(options=options)
+                log.info("Chrome initialized successfully with auto-detected version")
+            except Exception as e2:
+                log.error(f"Failed to initialize undetected-chromedriver: {e2}")
+                raise e2
         
         # Apply stealth settings
         # Determine platform string for stealth match

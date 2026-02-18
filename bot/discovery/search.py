@@ -1,7 +1,13 @@
 import time
 import random
 import logging
+import os
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+
+load_dotenv()
+
+LINKEDIN_BASE_URL = os.getenv("LINKEDIN_BASE_URL", "https://www.linkedin.com")
 
 # from bot.application.workflow import Workflow
 from bot.utils.delays import sleep_random
@@ -138,7 +144,7 @@ class Search:
         experience_level_str = ",".join(map(str, self.experience_level)) if self.experience_level else ""
         experience_level_param = f"&f_E={experience_level_str}" if experience_level_str else ""
         
-        url = ("https://www.linkedin.com/jobs/search/?f_LF=f_AL&keywords=" +
+        url = (f"{LINKEDIN_BASE_URL}/jobs/search/?f_LF=f_AL&keywords=" +
                position + location + "&start=" + str(jobs_per_page) + experience_level_param)
         
         self.browser.get(url)

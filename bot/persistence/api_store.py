@@ -25,6 +25,9 @@ class APIStore:
         """
         Send job data to the API.
         Expected job_data keys: title, company, location, zipcode, url, job_id
+        Also accepts `source_job_id` (alternate key used by some sites) and will
+        prefer it when present. Both `source_uid` and `source_job_id` are sent
+        in the payload for compatibility.
         """
         try:
             # 1. Parse Location (City, State)
@@ -37,22 +40,52 @@ class APIStore:
                 if len(parts) > 1:
                     state = parts[1]
             
-            # 2. Derive Country from Zipcode
-            zipcode = str(job_data.get('zipcode', ''))
-            country = "USA" if len(zipcode) == 5 else "India"
+            # 2. Derive Country from Zipcode / Location
+            zipcode_raw = str(job_data.get('zipcode', '') or '').strip()
+            zipcode = zipcode_raw.lower()
+            location_field = str(job_data.get('location', '') or '').strip().lower()
+
+            country = None
+            # If zipcode is purely numeric, use length to guess country
+            if zipcode_raw.isdigit():
+                if len(zipcode_raw) == 5:
+                    country = "USA"
+                # Do not assume 6-digit zip -> India by default. Only mark India
+                # when an explicit textual cue exists in the location or zipcode.
+            # If textual clues appear in zipcode or location, use them
+            if not country:
+                if 'india' in zipcode or 'india' in location_field:
+                    country = "India"
+                elif 'united states' in zipcode or 'united states' in location_field or 'usa' in zipcode or 'usa' in location_field:
+                    country = "USA"
+                elif 'remote' in location_field:
+                    # treat remote as USA by default (adjust if needed)
+                    country = "USA"
+
+            # Fallback default
+            if not country:
+                country = os.getenv('DEFAULT_COUNTRY', 'USA')
+
+            # Only include numeric zip codes in the payload; otherwise leave blank
+            payload_zip = zipcode_raw if zipcode_raw.isdigit() else ""
 
             # 3. Construct Payload matching PositionCreate schema
+            # Prefer explicit `source_job_id` if provided, otherwise fall back to `job_id`.
+            source_val = job_data.get('source_job_id') or job_data.get('job_id', '')
+
             payload = {
                 "title": job_data.get('title', 'Unknown'),
                 "company_name": job_data.get('company', 'Unknown'),
                 "location": full_location,
                 "city": city,
                 "state": state,
-                "zip": zipcode,
+                "zip": payload_zip,
                 "country": country,
                 "job_url": job_data.get('url', ''),
                 "source": "linkedin",
-                "source_uid": job_data.get('job_id', ''),
+                "source_uid": source_val,
+                # Also include `source_job_id` for APIs that expect that exact field name
+                "source_job_id": source_val,
                 "status": "open",
                 # "position_type": "full_time", # Optional defaults
                 # "employment_mode": "onsite"   # Optional defaults
@@ -62,6 +95,26 @@ class APIStore:
             # Assuming the API accepts these fields.
 
             logger.info(f"Sending job to: {self.client.build_url(self.positions_endpoint)}", step="api_save")
+            # Normalize payload to lowercase per site requirement
+            try:
+                payload['title'] = str(payload.get('title','')).strip().lower()
+                payload['company_name'] = str(payload.get('company_name','')).strip().lower()
+                payload['location'] = str(payload.get('location','')).strip().lower()
+                payload['city'] = str(payload.get('city','')).strip().lower()
+                payload['state'] = str(payload.get('state','')).strip().lower()
+                payload['country'] = str(payload.get('country','')).strip()
+            except Exception:
+                pass
+
+            # If zip is empty, attempt to extract a 5-digit ZIP from the location text
+            if not payload.get('zip'):
+                import re
+                loc_text = (payload.get('location') or '') + ' ' + (payload.get('city') or '')
+                m = re.search(r"\b(\d{5})\b", loc_text)
+                if m:
+                    payload['zip'] = m.group(1)
+                    logger.info(f"Derived zip {payload['zip']} from location for job {payload.get('title')}", step="api_save")
+
             response = self.client.post(self.positions_endpoint, json=payload, timeout=15)
             
             if response.status_code in [200, 201]:

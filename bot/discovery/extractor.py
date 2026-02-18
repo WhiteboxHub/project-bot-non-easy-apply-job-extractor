@@ -1,8 +1,14 @@
 import time
 import random
 import logging
+import os
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
+from dotenv import load_dotenv
+
+load_dotenv()
+
+LINKEDIN_BASE_URL = os.getenv("LINKEDIN_BASE_URL", "https://www.linkedin.com")
 
 from bot.utils.delays import sleep_random
 from bot.utils.selectors import LOCATORS
@@ -20,7 +26,7 @@ import csv
 import os
 
 class JobExtractor(Search):
-    def __init__(self, browser, candidate_id="default", blacklist=None, experience_level=None, csv_path=None, distance_miles=50, api_store=None):
+    def __init__(self, browser, candidate_id="default", blacklist=None, experience_level=None, csv_path=None, distance_miles=50, api_store=None, search_timespan="r86400"):
         # We don't need workflow for extraction as we are not applying here
         # Passing None for workflow
         super().__init__(browser, None, blacklist, experience_level)
@@ -30,13 +36,14 @@ class JobExtractor(Search):
         self.store = Store()
         self.api_store = api_store if api_store else APIStore()
         self.mysql_store = None # Will be set by caller or during extraction
+        self.search_timespan = search_timespan
         self.seen_jobs = self._load_seen_jobs()
         
         # Initialize CSV if provided
         if self.csv_path and not os.path.exists(self.csv_path):
             with open(self.csv_path, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
-                writer.writerow(['job_id', 'title', 'company', 'location', 'zipcode', 'url', 'date_extracted', 'is_easy_apply'])
+                writer.writerow(['source_job_id', 'title', 'company', 'location', 'zipcode', 'url', 'date_extracted', 'is_non_easy_apply'])
 
     def _load_seen_jobs(self):
         """Load already extracted job IDs from database to prevent duplicates"""
@@ -172,7 +179,21 @@ class JobExtractor(Search):
 
                         try:
                             job_id = JobIdentity.extract_job_id(link)
-                            if not job_id or job_id in processed_job_ids_on_page or job_id in self.seen_jobs:
+                            
+                            # Log each job found for debugging
+                            link_text_preview = link.text[:100].replace('\n', ' | ')
+                            logger.info(f"🔍 Job Check: ID={job_id} | Text={link_text_preview}")
+                            
+                            if not job_id:
+                                logger.info(f"❌ Skipping - no job ID found")
+                                continue
+                            
+                            if job_id in processed_job_ids_on_page:
+                                logger.info(f"⏭️ Skipping {job_id} - already processed on this page")
+                                continue
+                                
+                            if job_id in self.seen_jobs:
+                                logger.info(f"⏭️ Skipping {job_id} - already seen (duplicate)")
                                 continue
                             
                             found_new_in_iteration = True
@@ -180,6 +201,7 @@ class JobExtractor(Search):
                             
                             is_easy = "Easy Apply" in link.text
                             if is_easy:
+                                logger.info(f"🚫 Skipping EASY APPLY job: {job_id}")
                                 self.seen_jobs.add(job_id)
                                 continue
 
@@ -268,12 +290,12 @@ class JobExtractor(Search):
         else:
              formatted_location = location
 
-        # f_TPR=r86400 is the filter for Past 24 Hours
-        search_time_filter = "&f_TPR=r86400" 
+        # f_TPR filter for search timespan (e.g., r86400 for 24h, r604800 for 7d)
+        search_time_filter = f"&f_TPR={self.search_timespan}" 
         location_param = f"&location={formatted_location}"
         # Wrap keyword in quotes (%22) for strict phrase matching to avoid broad matches like UI for AI searches
         keyword_param = f"%22{position}%22"
-        url = ("https://www.linkedin.com/jobs/search/?" + "keywords=" +
+        url = (f"{LINKEDIN_BASE_URL}/jobs/search/?" + "keywords=" +
                keyword_param + location_param + search_time_filter + "&start=" + str(jobs_per_page) + 
                experience_level_param + distance_param + sort_param + extra_params)
         
@@ -342,9 +364,12 @@ class JobExtractor(Search):
             except:
                 pass
 
-            # Cleanup
-            company = company.replace("\n", " ").strip()
-            location = location.replace("\n", " ").strip()
+            # Cleanup and Lowercase
+            company = company.replace("\n", " ").strip().lower()
+            location = location.replace("\n", " ").strip().lower()
+            title = title.lower()
+            job_id = str(job_id).lower() if job_id else ""
+            zipcode = str(zipcode).lower()
 
 
             url = f"https://www.linkedin.com/jobs/view/{job_id}"
@@ -352,7 +377,7 @@ class JobExtractor(Search):
             # Database Save
             self.store.con.execute(
                  "INSERT OR REPLACE INTO extracted_jobs (id, job_id, url, title, company, location, date_extracted, candidate_id, is_easy_apply) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)",
-                 [job_id, job_id, url, title, company, location, self.candidate_id, False]
+                 [job_id, job_id, url, title, company, location, self.candidate_id, True]
              )
             self.store.con.commit()
              
@@ -360,7 +385,7 @@ class JobExtractor(Search):
             if self.csv_path:
                 with open(self.csv_path, 'a', newline='', encoding='utf-8') as f:
                     writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
-                    writer.writerow([job_id, title, company, location, zipcode, url, time.strftime('%Y-%m-%d %H:%M:%S'), False])
+                    writer.writerow([job_id, title, company, location, zipcode, url, time.strftime('%Y-%m-%d %H:%M:%S'), True])
                 
             # API Save (Remote)
             job_data = {
@@ -369,7 +394,7 @@ class JobExtractor(Search):
                 'location': location,
                 'zipcode': zipcode,
                 'url': url,
-                'job_id': job_id
+                'source_job_id': job_id
             }
             if self.api_store:
                 self.api_store.insert_position(job_data)

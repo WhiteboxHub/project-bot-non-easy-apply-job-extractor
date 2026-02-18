@@ -15,6 +15,7 @@ class Store:
         Path(self.db_file).parent.mkdir(parents=True, exist_ok=True)
         self.con = sqlite3.connect(self.db_file, check_same_thread=False)
         self._init_db()
+        self.cleanup_old_jobs(days=3)
         self._migrate_legacy_data()
 
     def _init_db(self):
@@ -98,6 +99,24 @@ class Store:
         """)
         
         self.con.commit()
+
+    def cleanup_old_jobs(self, days=3):
+        """
+        Deletes entries from 'extracted_jobs' that are older than the specified number of days.
+        """
+        try:
+            cutoff_date = datetime.now() - timedelta(days=days)
+            # Use ISO format for SQLite compatibility if needed, though CURRENT_TIMESTAMP is usually handled fine.
+            cursor = self.con.cursor()
+            cursor.execute("DELETE FROM extracted_jobs WHERE date_extracted < ?", [cutoff_date])
+            deleted_count = cursor.rowcount
+            self.con.commit()
+            if deleted_count > 0:
+                log.info(f"🧹 Cleanup: Removed {deleted_count} jobs older than {days} days from extracted_jobs.")
+            else:
+                log.debug(f"Cleanup: No jobs older than {days} days found.")
+        except Exception as e:
+            log.error(f"Failed to cleanup old jobs: {e}")
 
     def _migrate_legacy_data(self):
         # Skipping CSV migration for stability in SQLite port

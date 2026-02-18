@@ -1,0 +1,40 @@
+# Candidate Marketing Configuration
+# Use this file to manage candidates for the Job Extraction Scheduler
+
+# Global Settings (Used if not specified in candidate block)
+settings:
+  distance_miles: 50
+  default_location: "United States"
+  search_timespan: "24h"  # Options: 24h (24 hours), 7d (7 days)
+  # search_timespan: "7d"  
+  default_keywords: ["AI/ML Engineer", "MLOps", "Gen AI"]
+  dry_run: false  # Set to true to run without saving to database/API
+  validate_secrets_at_startup: true  # Validate required secrets before execution
+  jobs_per_location_limit: 999
+  total_run_limit: 9999
+  distance_buckets: [5, 10, 25, 50, 100]
+  wait_time_between_locations: 5
+
+candidates:
+  - candidate_id: "candidate_001"
+    name: "John Doe"
+    linkedin_username: "your_linkedin_email@example.com"
+    linkedin_password: "your_secure_password_here"
+    
+    # Job Keywords
+    keywords:
+      - "AI/ML"
+      - "MLOps"
+      - "Gen AI"
+    
+    # Locations (Zipcodes ONLY)
+    locations:
+      # - "94586"
+      # - "500001"
+      # - "560001"
+      # - "94566"
+      # - "54539"
+    
+    run_extract_linkedin_jobs: true
+
+ 

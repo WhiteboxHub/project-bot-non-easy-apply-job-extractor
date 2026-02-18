@@ -98,22 +98,24 @@ class WebsiteAPIClient:
                 name = cand.get('full_name') or c_obj.get('full_name') or cand.get('name', 'Unknown')
                 email = cand.get('email') or c_obj.get('email', '')
                 username = cand.get('linkedin_username') or c_obj.get('linkedin_username') or email
-                password = cand.get('linkedin_password') or cand.get('linkedin_passwd') or c_obj.get('linkedin_password', '')
+                # Do NOT persist plaintext passwords locally. Keep password empty here.
+                # If your workflow requires login, provide credentials locally (e.g., via `candidate.yaml`)
+                password = ""
                 zipcode = cand.get('zip_code') or cand.get('zipcode') or c_obj.get('zip_code') or c_obj.get('zipcode', '')
                 run_flag = cand.get('run_extract_linkedin_jobs')
                 if run_flag is None: run_flag = True # Default to True
                 
                 # Update candidates table
+                # Do NOT write plaintext linkedin_password to the local cache. Exclude the column.
                 cursor.execute("""
-                    INSERT INTO candidates (candidate_id, name, email, linkedin_username, linkedin_password, zipcode)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO candidates (candidate_id, name, email, linkedin_username, zipcode)
+                    VALUES (?, ?, ?, ?, ?)
                     ON CONFLICT(candidate_id) DO UPDATE SET
                         name=excluded.name,
                         email=excluded.email,
                         linkedin_username=excluded.linkedin_username,
-                        linkedin_password=excluded.linkedin_password,
                         zipcode=excluded.zipcode
-                """, (c_id, name, email, username, password, zipcode))
+                """, (c_id, name, email, username, zipcode))
                 
                 # Update marketing flag
                 cursor.execute("""
@@ -200,7 +202,8 @@ class WebsiteAPIClient:
                     'candidate_id': str(c_id),
                     'name': candidate.get('full_name') or candidate.get('name') or c_obj.get('full_name', ''),
                     'linkedin_username': username,
-                    'linkedin_password': password,
+                    # Do not include plaintext passwords when syncing candidates
+                    'linkedin_password': '',
                     'keywords': keywords,
                     'locations': locations,
                     'run_extract_linkedin_jobs': candidate.get('run_extract_linkedin_jobs', True)

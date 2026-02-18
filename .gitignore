@@ -209,6 +209,10 @@ __marimo__/
 # --- LinkedIn Bot Custom Ignores ---
 .env
 data/bot_data.duckdb
+data/bot_data.sqlite
+*.sqlite
+*.sqlite3
+*.db
 data/profiles/
 data/*.csv
 archive/
@@ -217,3 +221,5 @@ archive/
 *.csv
 assets/*.pdf
 assets/candidates/
+data/.api_token.json
+candidate.yaml

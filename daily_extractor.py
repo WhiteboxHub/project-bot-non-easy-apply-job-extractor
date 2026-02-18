@@ -13,6 +13,17 @@ from dotenv import load_dotenv
 # Import new utilities
 from bot.utils.startup_validation import run_startup_validation
 from bot.utils.metrics import metrics
+from bot.utils.startup_validation import run_startup_validation
+
+# Timespan mapping for user-friendly configuration
+TIMESPAN_MAP = {
+    "24h": "r86400",
+    "24 hours": "r86400",
+    "7d": "r604800",
+    "7 days": "r604800",
+    "1d": "r86400",
+    "1 week": "r604800"
+}
 
 load_dotenv()
 
@@ -54,7 +65,26 @@ def run_extraction():
     
     # Global Settings: YAML > ENV > Default
     env_dist = yaml_settings.get('distance_miles') or int(os.getenv("DISTANCE_MILES", 50))
-    env_max_apps = yaml_settings.get('max_applications_per_run') or int(os.getenv("MAX_APPLICATIONS_PER_RUN", 50))
+    env_location = yaml_settings.get('default_location') or "United States"
+    raw_timespan = yaml_settings.get('search_timespan') or "24h"
+    env_timespan = TIMESPAN_MAP.get(str(raw_timespan).lower(), raw_timespan)
+    
+    # New settings from YAML
+    env_dry_run = yaml_settings.get('dry_run')
+    if env_dry_run is None:
+        env_dry_run = os.getenv("DRY_RUN", "false").lower() == "true"
+    
+    env_default_keywords = yaml_settings.get('default_keywords') or os.getenv("DEFAULT_KEYWORDS", "").split(",")
+    if isinstance(env_default_keywords, str):
+        env_default_keywords = [k.strip() for k in env_default_keywords.split(",") if k.strip()]
+
+    # Extraction limits and timing
+    jobs_per_zip = yaml_settings.get('jobs_per_location_limit', 999)
+    total_run_limit = yaml_settings.get('total_run_limit', 9999)
+    dist_buckets = yaml_settings.get('distance_buckets', [5, 10, 25, 50, 100])
+    wait_between_locs = yaml_settings.get('wait_time_between_locations', 5)
+    
+    logger.info(f"Using search settings: Distance={env_dist}mi, Location={env_location}, Timespan={raw_timespan} ({env_timespan}), DryRun={env_dry_run}")
     
     # Initialize stores
     api_store = APIStore()
@@ -70,7 +100,7 @@ def run_extraction():
                 candidate_id = cand.get('candidate_id', 'unknown')
                 username = cand.get('linkedin_username')
                 password = cand.get('linkedin_password')
-                keywords = cand.get('keywords', [])
+                keywords = cand.get('keywords') or env_default_keywords
                 locations = cand.get('locations', [])
                 
                 # Start metrics tracking for this candidate
@@ -79,16 +109,17 @@ def run_extraction():
                 # Check if login is possible
                 can_login = username and password and password != "*****"
                 
-                # Use individual limit or global limit
-                max_total_limit = cand.get('max_applications_per_run') or env_max_apps
-                
                 logger.info(f"--- Processing Candidate: {candidate_id} ({username if username else 'No Login'}) ---")
                 logger.info(f"Keywords: {keywords}")
                 logger.info(f"Locations: {locations}")
 
                 if not locations:
-                    logger.warning(f"Candidate {candidate_id} has no locations. Skipping.")
-                    continue
+                    if env_location:
+                        logger.info(f"Candidate {candidate_id} has no locations. Using default: {env_location}")
+                        locations = [env_location]
+                    else:
+                        logger.warning(f"Candidate {candidate_id} has no locations and no default set. Skipping.")
+                        continue
 
                 # File setup
                 exports_dir = os.path.abspath(os.path.join(os.getcwd(), "data", "exports"))
@@ -96,13 +127,11 @@ def run_extraction():
                 csv_filename = os.path.join(exports_dir, "extractor_job_links.csv")
                 
                 # Distance Logic
-                jobs_per_zip = 999 
                 total_candidate_extracted = 0
                 
                 # Use individual distance or global distance
                 max_dist = cand.get('distance_miles') or env_dist
-                dist_list = [5, 10, 25, 50, 100]
-                dist_list = [d for d in dist_list if d <= max_dist]
+                dist_list = [d for d in dist_buckets if d <= max_dist]
                 if not dist_list: dist_list = [max_dist]
 
                 # Profile setup
@@ -126,38 +155,31 @@ def run_extraction():
 
                         location_extraction_total = 0
                         for current_dist in dist_list:
-                            # Exit if we hit the TOTAL CANDIDATE limit
-                            if total_candidate_extracted >= max_total_limit:
-                                logger.info(f"✅ Reached TOTAL candidate limit of {max_total_limit}. Stopping all extractions.")
-                                remaining_locations = []
-                                break
-                            
                             if location_extraction_total >= jobs_per_zip:
                                 break
-                            
-                            remaining_for_cand = max_total_limit - total_candidate_extracted
                                 
-                            logger.info(f"  --- Distance Bucket: {current_dist} miles (Candidate Total: {total_candidate_extracted}/{max_total_limit}) ---")
+                            logger.info(f"  --- Distance Bucket: {current_dist} miles (Candidate Total: {total_candidate_extracted}) ---")
                             
                             extractor = JobExtractor(
                                 browser, 
                                 candidate_id=candidate_id, 
                                 csv_path=csv_filename, 
                                 distance_miles=current_dist,
-                                api_store=api_store
+                                api_store=api_store,
+                                search_timespan=env_timespan
                             )
                             
                             zip_match = re.search(r'\b\d{5,6}\b', current_loc)
                             zipcode = zip_match.group(0) if zip_match else current_loc
 
                             logger.info(f"Starting extraction for: {current_loc} at {current_dist}mi")
-                            newly_found = extractor.start_extract(keywords, locations=[current_loc], zipcode=zipcode, limit=remaining_for_cand)
+                            newly_found = extractor.start_extract(keywords, locations=[current_loc], zipcode=zipcode, limit=total_run_limit)
                             location_extraction_total += newly_found
                             total_candidate_extracted += newly_found
                         
                         if remaining_locations:
                              remaining_locations.pop(0)
-                        time.sleep(5)
+                        time.sleep(wait_between_locs)
 
                     except Exception as e:
                         err_msg = str(e).lower()
