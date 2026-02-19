@@ -44,6 +44,12 @@ class JobExtractor(Search):
             with open(self.csv_path, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
                 writer.writerow(['source_job_id', 'title', 'company', 'location', 'zipcode', 'url', 'date_extracted', 'is_non_easy_apply'])
+        
+        # batch_buffer lives on api_store now (shared across all distance buckets)
+
+    # flush_batches() has been moved to APIStore.flush_batches()
+    # Jobs accumulate in api_store.batch_buffer across ALL pages/distances
+    # and are flushed once at the end of the full run in daily_extractor.py
 
     def _load_seen_jobs(self):
         """Load already extracted job IDs from database to prevent duplicates"""
@@ -68,19 +74,22 @@ class JobExtractor(Search):
         random.shuffle(combo_list)
 
         total_extracted = 0
-        for position, location in combo_list:
-            logger.info(f"Extracting jobs for {position}: {location} (Zipcode: {zipcode})", step="extract_init")
-            if self.csv_path:
-                logger.info(f"📂 CSV file: {os.path.abspath(self.csv_path)}")
+        try:
+            for position, location in combo_list:
+                logger.info(f"Extracting jobs for {position}: {location} (Zipcode: {zipcode})", step="extract_init")
+                if self.csv_path:
+                    logger.info(f"📂 CSV file: {os.path.abspath(self.csv_path)}")
+                
+                remaining_limit = limit - total_extracted
+                if remaining_limit <= 0: break
+                
+                count = self.extraction_loop(position, location, zipcode, limit=remaining_limit)
+                total_extracted += count
+                if total_extracted >= limit:
+                    break
+        finally:
+            pass  # Final flush is handled by daily_extractor.py (once for the whole run)
             
-            # Pass a limit if needed
-            remaining_limit = limit - total_extracted
-            if remaining_limit <= 0: break
-            
-            count = self.extraction_loop(position, location, zipcode, limit=remaining_limit)
-            total_extracted += count
-            if total_extracted >= limit:
-                break
         return total_extracted
 
     def extraction_loop(self, position, location, zipcode="", limit=15):
@@ -224,6 +233,7 @@ class JobExtractor(Search):
                     time.sleep(0.5)
                 
                 logger.info(f"Finished Page {int(jobs_per_page/25) + 1}: {extracted_on_page} NEW links saved. Total so far: {extracted_total}/{limit}", step="job_extract")
+                logger.info(f"📥 Buffer now holds {len(self.api_store.batch_buffer) if self.api_store else 0} jobs total (flush at end of run)", step="job_extract")
 
                 if extracted_total >= limit:
                     logger.info(f"Reached search limit of {limit} jobs. Breaking pagination.", step="job_extract")
@@ -397,7 +407,9 @@ class JobExtractor(Search):
                 'source_job_id': job_id
             }
             if self.api_store:
-                self.api_store.insert_position(job_data)
+                # Accumulate in the shared api_store buffer (flushed once at end of full run)
+                self.api_store.batch_buffer.append(job_data)
+                logger.info(f"📥 Queued for bulk insert (buffer size: {len(self.api_store.batch_buffer)})", step="extract_job")
                 
             # MySQL Save (Direct Database)
             if hasattr(self, 'mysql_store') and self.mysql_store:

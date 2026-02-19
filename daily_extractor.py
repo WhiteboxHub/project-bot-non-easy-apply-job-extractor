@@ -212,9 +212,18 @@ def run_extraction():
                 metrics.end_run()
                 continue
 
+    except KeyboardInterrupt:
+        logger.warning("⚠️ Run interrupted by user (Ctrl+C). Flushing all buffered jobs before exit...")
     finally:
+        # ✅ ONE bulk insert for the entire run — all jobs collected across all pages/distances
+        buffered = len(api_store.batch_buffer)
+        if buffered > 0:
+            logger.info(f"📡 Final bulk insert: {buffered} jobs collected during this run.")
+            api_store.flush_batches()
+        else:
+            logger.info("No new jobs collected — nothing to flush.")
         api_store.close()
-        logger.info("Daily Extraction completed.")
+        logger.info("✅ Daily Extraction completed.")
 
 if __name__ == '__main__':
     run_extraction()
