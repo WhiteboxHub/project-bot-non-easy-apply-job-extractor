@@ -1,4 +1,4 @@
-# LinkedIn Job Extractor Bot
+                                                                                                        1``# LinkedIn Job Extractor Bot
 
 A Python-based bot that automatically extracts LinkedIn job postings and sends them to your backend API. Built with Selenium and anti-detection features to avoid bot detection.
 
