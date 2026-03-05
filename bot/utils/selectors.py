@@ -92,6 +92,11 @@ LOCATORS = {
     "location": {
         "primary": (By.CSS_SELECTOR, ".job-card-container__metadata-item, .job-card-container__metadata-wrapper, .artdeco-entity-lockup__caption"),
         "fallback": (By.CSS_SELECTOR, ".job-card-container__location, .job-card-list__metadata-item")
+    },
+    
+    "external_apply_button": {
+        "primary": (By.XPATH, "//a[contains(@href, 'redir/redirect')]"),
+        "fallback": (By.XPATH, "//button[contains(@aria-label, 'Apply') and not(contains(@aria-label, 'filter'))] | //a[contains(@aria-label, 'Apply') and not(contains(@aria-label, 'filter'))] | //button[.//span[text()='Apply']] | //a[.//span[text()='Apply']] | //button[@id='jobs-apply-button-id']")
     }
 }
 

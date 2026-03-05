@@ -8,7 +8,7 @@ load_dotenv()
 
 class MySQLStore:
     def __init__(self):
-        self.host = os.getenv('DB_HOST', 'localhost')
+        self.host = os.getenv('DB_HOST', '')
         self.user = os.getenv('DB_USER', 'root')
         self.password = os.getenv('DB_PASSWORD', '')
         self.database = os.getenv('DB_NAME', '')

@@ -20,15 +20,7 @@ class BaseAPIClient:
     """Common API client using API_TOKEN + SECRET_KEY authentication."""
 
     def __init__(self, base_url: Optional[str] = None):
-        # Allow easy local testing: if USE_LOCAL_API is set to true, prefer
-        # LOCAL_WBL_API_URL (defaulting to http://localhost:8000/api).
-        use_local = os.getenv("USE_LOCAL_API", "false").lower() == "true"
-        if use_local:
-            raw_base_url = base_url or os.getenv("LOCAL_WBL_API_URL", "http://localhost:8000/api")
-            logging.info(f"Using local API for testing: {raw_base_url}")
-        else:
-            raw_base_url = base_url or os.getenv("WBL_API_URL", "https://api.whitebox-learning.com/api")
-        self.base_url = raw_base_url.rstrip("/")
+        self.base_url = (base_url or os.getenv("WBL_API_URL", "https://api.whitebox-learning.com/api")).rstrip("/")
         self.api_token = (os.getenv("API_TOKEN") or "").strip()
         self.token_expiry = None
         self.secret_key = (os.getenv("SECRET_KEY") or "").strip()

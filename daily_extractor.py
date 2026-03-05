@@ -3,6 +3,7 @@ import os
 import time
 import re
 import yaml
+from datetime import datetime
 from bot.utils.logger import logger
 from bot.core.browser import Browser
 from bot.core.session import Session
@@ -13,7 +14,7 @@ from dotenv import load_dotenv
 # Import new utilities
 from bot.utils.startup_validation import run_startup_validation
 from bot.utils.metrics import metrics
-from bot.utils.startup_validation import run_startup_validation
+from bot.persistence.selector_store import SelectorStore
 
 # Timespan mapping for user-friendly configuration
 TIMESPAN_MAP = {
@@ -29,6 +30,12 @@ load_dotenv()
 
 # Run startup validation
 run_startup_validation(strict=True)
+
+# Sync selectors from selectors.py → DuckDB on every startup
+try:
+    SelectorStore().sync()
+except Exception as _e:
+    logging.warning(f"Selector sync to DuckDB skipped: {_e}")
 
 def load_candidates_from_yaml():
     """
@@ -214,16 +221,30 @@ def run_extraction():
 
     except KeyboardInterrupt:
         logger.warning("⚠️ Run interrupted by user (Ctrl+C). Flushing all buffered jobs before exit...")
+    except Exception as e:
+        logger.error(f"❌ Critical error in run_extraction: {e}")
+        raise e # Re-raise for the logger to catch
     finally:
         # ✅ ONE bulk insert for the entire run — all jobs collected across all pages/distances
         buffered = len(api_store.batch_buffer)
+        jobs_sample = []
         if buffered > 0:
             logger.info(f"📡 Final bulk insert: {buffered} jobs collected during this run.")
+            # Capture a small sample for logging before flushing
+            jobs_sample = [{"title": j.get('title'), "url": j.get('url')} for j in api_store.batch_buffer[:10]]
             api_store.flush_batches()
         else:
             logger.info("No new jobs collected — nothing to flush.")
+        
         api_store.close()
         logger.info("✅ Daily Extraction completed.")
+
+        # Return captured stats for the orchestrator/logger
+        return {
+            "jobs_saved": buffered,
+            "jobs_sample": jobs_sample,
+            "timestamp": datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
 
 if __name__ == '__main__':
     run_extraction()

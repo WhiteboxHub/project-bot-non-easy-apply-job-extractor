@@ -1,0 +1,23 @@
+[Thu 03/05/2026 11:29:57.22] Script started 
+Activating venv... 
+Running python script... 
+============================================================
+🔍 Running Startup Validation...
+============================================================
+
+✅ All required secrets are present
+✅ Configuration looks good
+
+============================================================
+✅ Startup validation passed!
+============================================================
+
+2026-03-05 11:29:58 INFO    message=✅ Selector sync complete: 19 selectors written to DuckDB (data/selectors.duckdb)
+2026-03-05 11:29:58 INFO    message=============================================================
+2026-03-05 11:29:58 INFO    message=Website Scheduler - Starting
+2026-03-05 11:29:58 INFO    message=============================================================
+2026-03-05 11:29:58 INFO    message=Checking website for due schedule...
+2026-03-05 11:29:58 INFO    message=Loaded API token from local cache.
+2026-03-05 11:29:59 WARNING message=No active schedule found for workflow: linkedin_non_easy_job_extractor
+2026-03-05 11:29:59 INFO    message=Exiting - nothing to run.
+[Thu 03/05/2026 11:29:59.32] Script finished with code 0 
