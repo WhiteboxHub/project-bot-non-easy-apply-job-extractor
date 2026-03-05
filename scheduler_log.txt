@@ -1,5 +1,4 @@
-[Thu 03/05/2026 11:29:57.22] Script started 
-Activating venv... 
+[Thu 03/05/2026 15:31:27.70] Script started 
 Running python script... 
 ============================================================
 🔍 Running Startup Validation...
@@ -12,12 +11,93 @@ Running python script...
 ✅ Startup validation passed!
 ============================================================
 
-2026-03-05 11:29:58 INFO    message=✅ Selector sync complete: 19 selectors written to DuckDB (data/selectors.duckdb)
-2026-03-05 11:29:58 INFO    message=============================================================
-2026-03-05 11:29:58 INFO    message=Website Scheduler - Starting
-2026-03-05 11:29:58 INFO    message=============================================================
-2026-03-05 11:29:58 INFO    message=Checking website for due schedule...
-2026-03-05 11:29:58 INFO    message=Loaded API token from local cache.
-2026-03-05 11:29:59 WARNING message=No active schedule found for workflow: linkedin_non_easy_job_extractor
-2026-03-05 11:29:59 INFO    message=Exiting - nothing to run.
-[Thu 03/05/2026 11:29:59.32] Script finished with code 0 
+2026-03-05 15:31:29 INFO    message=✅ Selector sync complete: 19 selectors written to DuckDB (data/selectors.duckdb)
+2026-03-05 15:31:29 INFO    message=============================================================
+2026-03-05 15:31:29 INFO    message=Website Scheduler - Starting
+2026-03-05 15:31:29 INFO    message=============================================================
+2026-03-05 15:31:29 INFO    message=Loaded API token from local cache.
+2026-03-05 15:31:45 INFO    message=✅ Applied backend visibility & due-status workaround.
+2026-03-05 15:31:45 INFO    message=Checking website for due schedule...
+2026-03-05 15:31:45 INFO    message=Loaded API token from local cache.
+2026-03-05 15:32:02 INFO    message=Found schedule ID: 8
+2026-03-05 15:32:02 INFO    message=Next run at: 2026-03-05T13:31:34
+2026-03-05 15:32:02 INFO    message=Last run at: 2026-03-05T15:31:03
+2026-03-05 15:32:02 INFO    message=Loaded API token from local cache.
+2026-03-05 15:32:11 INFO    message=Locked schedule 8 in website.
+2026-03-05 15:32:11 INFO    message=Loaded API token from local cache.
+2026-03-05 15:32:14 INFO    message=Created log entry with ID: 107
+2026-03-05 15:32:14 INFO    message=============================================================
+2026-03-05 15:32:14 INFO    message=Running extraction...
+2026-03-05 15:32:14 INFO    message=============================================================
+2026-03-05 15:32:14 INFO    message=Loaded 1 active candidates from YAML.
+2026-03-05 15:32:14 INFO    message=Using search settings: Distance=50mi, Location=United States, Timespan=24h (r86400), DryRun=False
+2026-03-05 15:32:14 INFO    message=Loaded API token from local cache.
+2026-03-05 15:32:14 INFO    message=Initialized APIStore for: https://api.whitebox-learning.com/api/positions/
+2026-03-05 15:32:14 INFO    message=--- Processing Candidate: candidate_001 (psunil55433@gmail.com) ---
+2026-03-05 15:32:14 INFO    message=Keywords: ['Python', 'AI/ML Engineer', 'LLM Engineer']
+2026-03-05 15:32:14 INFO    message=Locations: None
+2026-03-05 15:32:14 INFO    message=Candidate candidate_001 has no locations. Using default: United States
+2026-03-05 15:32:14 INFO    message=Initializing browser for candidate_001...
+2026-03-05 15:32:14 INFO    message=Using absolute profile path: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\profiles\candidate_001
+2026-03-05 15:32:16 INFO    message=Chrome initialized successfully with forced version 144
+2026-03-05 15:32:16 INFO    step=login event=start message=Checking login status...
+2026-03-05 15:34:18 INFO    step=login event=success message=Already logged in.
+2026-03-05 15:34:18 INFO    message=  --- Distance Bucket: 5 miles (Candidate Total: 0) ---
+2026-03-05 15:34:18 DEBUG   message=Cleanup: No jobs older than 3 days found.
+2026-03-05 15:34:18 INFO    message=Starting extraction for: United States at 5mi
+2026-03-05 15:34:18 INFO    step=extract_init message=Extracting jobs for Python: United States (Zipcode: United States)
+2026-03-05 15:34:18 INFO    message=📂 CSV file: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\exports\extractor_job_links.csv
+2026-03-05 15:34:18 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=%22Python%22&location=United States&f_TPR=r86400&start=0&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-05 15:36:18 ERROR   message=Error processing location United States: HTTPConnectionPool(host='localhost', port=60784): Read timed out. (read timeout=120)
+
+======================================================================
+📊 EXTRACTION RUN SUMMARY
+======================================================================
+
+Run ID: 20260305_153214
+Candidate: candidate_001
+Duration: 4.07 minutes
+Started: 2026-03-05 15:32:14
+Ended: 2026-03-05 15:36:18
+
+──────────────────────────────────────────────────────────────────────
+SEARCH PARAMETERS
+──────────────────────────────────────────────────────────────────────
+Keywords: Python, AI/ML Engineer, LLM Engineer
+Locations: None
+
+──────────────────────────────────────────────────────────────────────
+JOB EXTRACTION RESULTS
+──────────────────────────────────────────────────────────────────────
+✅ Jobs Saved:                   0
+🔍 Jobs Found (Total):           0
+⏭️  Skipped (Duplicate):         0
+⏭️  Skipped (Easy Apply):        0
+❌ Failed to Save:               0
+
+──────────────────────────────────────────────────────────────────────
+NAVIGATION METRICS
+──────────────────────────────────────────────────────────────────────
+Pages Visited:                   0
+Scroll Attempts:                 0
+
+──────────────────────────────────────────────────────────────────────
+ERROR & RETRY SUMMARY
+──────────────────────────────────────────────────────────────────────
+Total Errors:                    0
+Total Warnings:                  0
+
+======================================================================
+
+2026-03-05 15:36:18 INFO    message=No new jobs collected — nothing to flush.
+2026-03-05 15:36:18 INFO    message=✅ Daily Extraction completed.
+2026-03-05 15:36:18 INFO    message=============================================================
+2026-03-05 15:36:18 INFO    message=Extraction completed successfully!
+2026-03-05 15:36:18 INFO    message=============================================================
+2026-03-05 15:36:18 INFO    message=Loaded API token from local cache.
+2026-03-05 15:36:31 INFO    message=Updated log 107 with status: success
+2026-03-05 15:36:31 INFO    message=Loaded API token from local cache.
+2026-03-05 15:36:47 INFO    message=Unlocked schedule 8. Next run: 2026-03-06 15:36:31.985475
+2026-03-05 15:36:47 INFO    message=Website Scheduler - Finished
+2026-03-05 15:36:47 INFO    message=============================================================
+[Thu 03/05/2026 15:36:48.01] Script finished with code 0 

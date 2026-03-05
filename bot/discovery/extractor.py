@@ -265,7 +265,6 @@ class JobExtractor(Search):
         
         return extracted_total
 
-    @retry(max_attempts=3, delay=2)
     def next_jobs_page(self, position, location, jobs_per_page):
         # Refresh session if it's dead
         try:
