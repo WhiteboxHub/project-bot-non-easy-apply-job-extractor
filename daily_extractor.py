@@ -234,7 +234,7 @@ def run_extraction():
         jobs_sample = []
         if buffered > 0:
             logger.info(f"📡 Final bulk insert: {buffered} jobs collected during this run.")
-            jobs_sample = [{"title": j.get('title'), "url": j.get('url')} for j in api_store.batch_buffer[:10]]
+            jobs_sample = [{"title": j.get('title'), "url": j.get('url'), "is_easy_apply": j.get('is_easy_apply', False)} for j in api_store.batch_buffer]
             api_store.flush_batches()
         else:
             logger.info("No new jobs collected — nothing to flush.")

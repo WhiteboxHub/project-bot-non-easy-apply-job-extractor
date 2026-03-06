@@ -264,6 +264,7 @@ def main():
     
     # Step 5: Run extraction
     results = None
+    start_time_iso = datetime.now().isoformat()
     try:
         logger.info("=" * 60)
         logger.info("Running extraction...")
@@ -277,17 +278,43 @@ def main():
         
         # Prepare execution metadata
         records_processed = 0
+        end_time_iso = datetime.now().isoformat()
+        date_run_iso = datetime.now().strftime('%Y-%m-%d')
+        
         execution_metadata = {
-            "message": "Completed via website scheduler",
-            "workflow_key": WORKFLOW_KEY,
-            "run_id": run_id
+            "workflow": WORKFLOW_KEY,
+            "date_run": date_run_iso,
+            "start_time": start_time_iso,
+            "end_time": end_time_iso,
+            "device_ran": os.getenv("COMPUTERNAME", "Unknown Device"),
+            "run_parameters_used": {
+                "schedule_id": schedule_id,
+                "run_id": run_id,
+                "workflow_id": workflow_id
+            },
+            "keywords_used": [], # Will be updated if available in results
+            "jobs_extracted": {
+                "count": 0,
+                "easy_apply_count": 0,
+                "non_easy_apply_count": 0,
+                "links": []
+            }
         }
         
         if results and isinstance(results, dict):
             records_processed = results.get('jobs_saved', 0)
-            execution_metadata['jobs_found'] = records_processed
-            execution_metadata['jobs_sample'] = results.get('jobs_sample', [])
-            execution_metadata['completion_timestamp'] = results.get('timestamp')
+            
+            jobs = results.get('jobs_sample', [])
+            easy_count = sum(1 for j in jobs if j.get('is_easy_apply'))
+            non_easy_count = len(jobs) - easy_count
+            
+            execution_metadata['keywords_used'] = results.get('keywords', [])
+            execution_metadata['jobs_extracted'] = {
+                "count": len(jobs),
+                "easy_apply_count": easy_count,
+                "non_easy_apply_count": non_easy_count,
+                "links": [j.get('url') for j in jobs]
+            }
             
             if results.get('status') == 'interrupted':
                 logger.warning("Extraction reported as interrupted via return value.")
