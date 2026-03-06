@@ -340,29 +340,68 @@ def main():
     except KeyboardInterrupt:
         logger.warning("Extraction interrupted by user (Ctrl+C).")
         
-        # Update log to show it was interrupted
+        # Update log to show it was interrupted — still send the full structure
         if log_id:
+            end_time_iso = datetime.now().isoformat()
+            interrupted_metadata = {
+                "workflow": WORKFLOW_KEY,
+                "date_run": datetime.now().strftime('%Y-%m-%d'),
+                "start_time": start_time_iso,
+                "end_time": end_time_iso,
+                "device_ran": os.getenv("COMPUTERNAME", "Unknown Device"),
+                "run_parameters_used": {
+                    "schedule_id": schedule_id,
+                    "run_id": run_id,
+                    "workflow_id": workflow_id
+                },
+                "keywords_used": [],
+                "jobs_extracted": {
+                    "count": 0,
+                    "easy_apply_count": 0,
+                    "non_easy_apply_count": 0,
+                    "links": []
+                },
+                "error": "Run was manually interrupted by user (Ctrl+C)"
+            }
             update_log(
                 log_id,
                 status='failed',
                 error_summary="Interrupted by user (Ctrl+C)",
-                execution_metadata={
-                    "message": "Run was manually interrupted",
-                    "workflow_key": WORKFLOW_KEY,
-                    "run_id": run_id
-                }
+                execution_metadata=interrupted_metadata
             )
         raise  # Re-raise to ensure script exits properly
         
     except Exception as e:
         logger.error(f"Extraction failed: {e}")
         
-        # Update log as failed
+        # Update log as failed — send full structured metadata
         if log_id:
+            end_time_iso = datetime.now().isoformat()
+            failed_metadata = {
+                "workflow": WORKFLOW_KEY,
+                "date_run": datetime.now().strftime('%Y-%m-%d'),
+                "start_time": start_time_iso,
+                "end_time": end_time_iso,
+                "device_ran": os.getenv("COMPUTERNAME", "Unknown Device"),
+                "run_parameters_used": {
+                    "schedule_id": schedule_id,
+                    "run_id": run_id,
+                    "workflow_id": workflow_id
+                },
+                "keywords_used": [],
+                "jobs_extracted": {
+                    "count": 0,
+                    "easy_apply_count": 0,
+                    "non_easy_apply_count": 0,
+                    "links": []
+                },
+                "error": str(e)[:500]
+            }
             update_log(
                 log_id,
                 status='failed',
-                error_summary=str(e)
+                error_summary=str(e),
+                execution_metadata=failed_metadata
             )
     
     finally:
