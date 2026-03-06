@@ -460,175 +460,182 @@ class JobExtractor(Search):
 
 
             # --- Start: ATS Link Extraction ---
+            # Easy Apply jobs stay on LinkedIn — skip ATS extraction entirely for them
             url = f"https://www.linkedin.com/jobs/view/{job_id}"
-            try:
-                from bot.utils.selectors import get_locator
-                from bot.utils.url_utils import decode_linkedin_redir
-                
-                # Wait longer for details pane to stabilize
-                time.sleep(5)
-                
-                print(f"\n[ATS DEBUG] ─────────────────────────────────────────")
-                print(f"[ATS DEBUG] Job ID   : {job_id}")
-                print(f"[ATS DEBUG] Job Title: {title}")
-                print(f"[ATS DEBUG] Searching for Apply button (primary selector)...")
+            logger.info(f"🔗 Default URL set: {url}", step="extract_job")
+            
+            if is_easy_apply:
+                # No external ATS link for Easy Apply — LinkedIn URL is correct as-is
+                logger.info(f"⚡ Easy Apply job — using LinkedIn URL directly, skipping ATS extraction.", step="extract_job")
+            else:
+                try:
+                    from bot.utils.selectors import get_locator
+                    from bot.utils.url_utils import decode_linkedin_redir
+                    
+                    # Wait longer for details pane to stabilize
+                    time.sleep(5)
+                    
+                    print(f"\n[ATS DEBUG] ─────────────────────────────────────────")
+                    print(f"[ATS DEBUG] Job ID   : {job_id}")
+                    print(f"[ATS DEBUG] Job Title: {title}")
+                    print(f"[ATS DEBUG] Searching for Apply button (primary selector)...")
 
-                # Try to find the button inside the details pane first to avoid global filter buttons
-                details_pane = None
-                for selector_type, selector_val in [
-                    (By.CLASS_NAME, "jobs-search-results-details__container"),
-                    (By.CSS_SELECTOR, ".jobs-details"),
-                    (By.CSS_SELECTOR, "[role='main']"),
-                    (By.CLASS_NAME, "jobs-details__main-content")
-                ]:
-                    try:
-                        panes = self.browser.driver.find_elements(selector_type, selector_val)
-                        if panes and panes[0].is_displayed():
-                            details_pane = panes[0]
-                            break
-                    except: continue
+                    # Try to find the button inside the details pane first to avoid global filter buttons
+                    details_pane = None
+                    for selector_type, selector_val in [
+                        (By.CLASS_NAME, "jobs-search-results-details__container"),
+                        (By.CSS_SELECTOR, ".jobs-details"),
+                        (By.CSS_SELECTOR, "[role='main']"),
+                        (By.CLASS_NAME, "jobs-details__main-content")
+                    ]:
+                        try:
+                            panes = self.browser.driver.find_elements(selector_type, selector_val)
+                            if panes and panes[0].is_displayed():
+                                details_pane = panes[0]
+                                break
+                        except: continue
 
-                apply_locator = get_locator("external_apply_button")
-                if details_pane:
-                    print(f"[ATS DEBUG] Searching for Apply button in details pane (primary)...")
-                    apply_buttons = details_pane.find_elements(*apply_locator)
-                else:
-                    print(f"[ATS DEBUG] Details pane not found, searching globally (primary)...")
-                    apply_buttons = self.browser.find_elements(*apply_locator)
-                
-                print(f"[ATS DEBUG] Primary selector found: {len(apply_buttons)} element(s)")
-                
-                if not apply_buttons:
-                    logger.info(f"🔍 Primary apply selector found nothing. Trying fallback...", step="extract_job")
-                    print(f"[ATS DEBUG] Trying fallback selector...")
-                    apply_locator = get_locator("external_apply_button", use_fallback=True)
+                    apply_locator = get_locator("external_apply_button")
                     if details_pane:
+                        print(f"[ATS DEBUG] Searching for Apply button in details pane (primary)...")
                         apply_buttons = details_pane.find_elements(*apply_locator)
                     else:
+                        print(f"[ATS DEBUG] Details pane not found, searching globally (primary)...")
                         apply_buttons = self.browser.find_elements(*apply_locator)
-                    print(f"[ATS DEBUG] Fallback selector found: {len(apply_buttons)} element(s)")
-
-                if not apply_buttons:
-                    logger.info(f" No 'Apply' button found for Job {job_id} — saving LinkedIn URL instead.", step="extract_job")
-                    print(f"[ATS DEBUG]  NO APPLY BUTTON FOUND — will save LinkedIn URL")
                     
-                    # --- Diagnostic Capture ---
-                    try:
-                        debug_dir = os.path.join("logs", "debug")
-                        os.makedirs(debug_dir, exist_ok=True)
-                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        
-                        # Screenshot
-                        screenshot_path = os.path.join(debug_dir, f"no_apply_{job_id}_{timestamp}.png")
-                        self.browser.driver.save_screenshot(screenshot_path)
-                        
-                        # HTML source
-                        html_path = os.path.join(debug_dir, f"no_apply_{job_id}_{timestamp}.html")
-                        with open(html_path, "w", encoding="utf-8") as f:
-                            f.write(self.browser.driver.page_source)
-                            
-                        print(f"[ATS DEBUG] 📸 Diagnostic capture saved to {debug_dir}")
-                        logger.info(f"📸 Diagnostic capture (screenshot/HTML) saved for debugging.", step="extract_job")
-                    except Exception as de:
-                        print(f"[ATS DEBUG] ⚠️ Failed to save diagnostic capture: {de}")
-                    # --------------------------
-
-                if apply_buttons:
-                    btn = apply_buttons[0]
-                    redir_url = btn.get_attribute("href")
+                    print(f"[ATS DEBUG] Primary selector found: {len(apply_buttons)} element(s)")
                     
-                    if redir_url:
-                        url = decode_linkedin_redir(redir_url)
-                        print(f"[ATS DEBUG] ✅ Decoded URL from href: {url}")
-                        logger.info(f"✨ Captured ATS link: {url[:60]}...", step="extract_job")
-                    else:
-                        print(f"[ATS DEBUG] → CASE 3: No href — will CLICK the button")
-                        logger.info(f"🖱️ Clicking 'Apply' button to capture ATS link...", step="extract_job")
-                        original_window = self.browser.current_window_handle
-                        original_url = self.browser.current_url
-                        print(f"[ATS DEBUG]   Original URL: {original_url}")
+                    if not apply_buttons:
+                        logger.info(f"🔍 Primary apply selector found nothing. Trying fallback...", step="extract_job")
+                        print(f"[ATS DEBUG] Trying fallback selector...")
+                        apply_locator = get_locator("external_apply_button", use_fallback=True)
+                        if details_pane:
+                            apply_buttons = details_pane.find_elements(*apply_locator)
+                        else:
+                            apply_buttons = self.browser.find_elements(*apply_locator)
+                        print(f"[ATS DEBUG] Fallback selector found: {len(apply_buttons)} element(s)")
+
+                    if not apply_buttons:
+                        logger.info(f" No 'Apply' button found for Job {job_id} — saving LinkedIn URL instead.", step="extract_job")
+                        print(f"[ATS DEBUG]  NO APPLY BUTTON FOUND — will save LinkedIn URL")
                         
-                        success = False
-                        # Try all buttons found if the first one doesn't work
-                        for i, candidate_btn in enumerate(apply_buttons):
-                            print(f"[ATS DEBUG]   --- Click Attempt on button {i+1}/{len(apply_buttons)} ---")
+                        # --- Diagnostic Capture ---
+                        try:
+                            debug_dir = os.path.join("logs", "debug")
+                            os.makedirs(debug_dir, exist_ok=True)
+                            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                             
-                            # Method A: Javascript click
-                            print(f"[ATS DEBUG]   Method A: Javascript click...")
-                            self.browser.execute_script("arguments[0].click();", candidate_btn)
-                            time.sleep(4)
+                            # Screenshot
+                            screenshot_path = os.path.join(debug_dir, f"no_apply_{job_id}_{timestamp}.png")
+                            self.browser.driver.save_screenshot(screenshot_path)
                             
-                            handles = self.browser.window_handles
-                            if len(handles) > 1:
-                                self.browser.switch_to.window(handles[1])
-                                url = self.browser.current_url
-                                logger.info(f"✨ Captured ATS link (new tab): {url[:60]}...", step="extract_job")
-                                print(f"[ATS DEBUG]   ✅ SUCCESS (New Tab): {url}")
-                                self.browser.close()
-                                self.browser.switch_to.window(original_window)
-                                success = True
-                                break
-                            elif self.browser.current_url != original_url and "linkedin.com" not in self.browser.current_url:
-                                url = self.browser.current_url
-                                logger.info(f"✨ Captured ATS link (same tab): {url[:60]}...", step="extract_job")
-                                print(f"[ATS DEBUG]   ✅ SUCCESS (Same Tab): {url}")
-                                self.browser.back()
-                                time.sleep(3)
-                                success = True
-                                break
-                            
-                            # Method B: Native click (if A failed)
-                            print(f"[ATS DEBUG]   Method B: Native Selenium click...")
-                            try:
-                                candidate_btn.click()
-                                time.sleep(4)
-                            except Exception as ce:
-                                print(f"[ATS DEBUG]   Native click failed: {ce}")
+                            # HTML source
+                            html_path = os.path.join(debug_dir, f"no_apply_{job_id}_{timestamp}.html")
+                            with open(html_path, "w", encoding="utf-8") as f:
+                                f.write(self.browser.driver.page_source)
                                 
-                            handles = self.browser.window_handles
-                            if len(handles) > 1:
-                                self.browser.switch_to.window(handles[1])
-                                url = self.browser.current_url
-                                logger.info(f"✨ Captured ATS link (new tab): {url[:60]}...", step="extract_job")
-                                print(f"[ATS DEBUG]   ✅ SUCCESS (Native New Tab): {url}")
-                                self.browser.close()
-                                self.browser.switch_to.window(original_window)
-                                success = True
-                                break
-                            elif self.browser.current_url != original_url and "linkedin.com" not in self.browser.current_url:
-                                url = self.browser.current_url
-                                logger.info(f"✨ Captured ATS link (same tab): {url[:60]}...", step="extract_job")
-                                print(f"[ATS DEBUG]   ✅ SUCCESS (Native Same Tab): {url}")
-                                self.browser.back()
-                                time.sleep(3)
-                                success = True
-                                break
+                            print(f"[ATS DEBUG] 📸 Diagnostic capture saved to {debug_dir}")
+                            logger.info(f"📸 Diagnostic capture (screenshot/HTML) saved for debugging.", step="extract_job")
+                        except Exception as de:
+                            print(f"[ATS DEBUG] ⚠️ Failed to save diagnostic capture: {de}")
+                        # --------------------------
 
-                        if not success:
-                            current = self.browser.current_url
-                            print(f"[ATS DEBUG]   ⚠️ All click attempts failed. Current URL: {current}")
-                            logger.warning("Tried clicking Apply but could not capture external URL.", step="extract_job")
+                    if apply_buttons:
+                        btn = apply_buttons[0]
+                        redir_url = btn.get_attribute("href")
+                        
+                        if redir_url:
+                            url = decode_linkedin_redir(redir_url)
+                            print(f"[ATS DEBUG] ✅ Decoded URL from href: {url}")
+                            logger.info(f"✨ Captured ATS link: {url[:60]}...", step="extract_job")
+                        else:
+                            print(f"[ATS DEBUG] → CASE 3: No href — will CLICK the button")
+                            logger.info(f"🖱️ Clicking 'Apply' button to capture ATS link...", step="extract_job")
+                            original_window = self.browser.current_window_handle
+                            original_url = self.browser.current_url
+                            print(f"[ATS DEBUG]   Original URL: {original_url}")
                             
-                            # --- Click Failure Diagnostic Capture ---
-                            try:
-                                debug_dir = os.path.join("logs", "debug")
-                                os.makedirs(debug_dir, exist_ok=True)
-                                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                                screenshot_path = os.path.join(debug_dir, f"click_failed_{job_id}_{timestamp}.png")
-                                self.browser.driver.save_screenshot(screenshot_path)
-                                html_path = os.path.join(debug_dir, f"click_failed_{job_id}_{timestamp}.html")
-                                with open(html_path, "w", encoding="utf-8") as f:
-                                    f.write(self.browser.driver.page_source)
-                                print(f"[ATS DEBUG] 📸 Click failure diagnostic saved to {debug_dir}")
-                            except Exception: pass
-                            # ----------------------------------------
-                
-                print(f"[ATS DEBUG] Final URL saved: {url}")
-                print(f"[ATS DEBUG] ─────────────────────────────────────────\n")
+                            success = False
+                            # Try all buttons found if the first one doesn't work
+                            for i, candidate_btn in enumerate(apply_buttons):
+                                print(f"[ATS DEBUG]   --- Click Attempt on button {i+1}/{len(apply_buttons)} ---")
+                                
+                                # Method A: Javascript click
+                                print(f"[ATS DEBUG]   Method A: Javascript click...")
+                                self.browser.execute_script("arguments[0].click();", candidate_btn)
+                                time.sleep(4)
+                                
+                                handles = self.browser.window_handles
+                                if len(handles) > 1:
+                                    self.browser.switch_to.window(handles[1])
+                                    url = self.browser.current_url
+                                    logger.info(f"✨ Captured ATS link (new tab): {url[:60]}...", step="extract_job")
+                                    print(f"[ATS DEBUG]   ✅ SUCCESS (New Tab): {url}")
+                                    self.browser.close()
+                                    self.browser.switch_to.window(original_window)
+                                    success = True
+                                    break
+                                elif self.browser.current_url != original_url and "linkedin.com" not in self.browser.current_url:
+                                    url = self.browser.current_url
+                                    logger.info(f"✨ Captured ATS link (same tab): {url[:60]}...", step="extract_job")
+                                    print(f"[ATS DEBUG]   ✅ SUCCESS (Same Tab): {url}")
+                                    self.browser.back()
+                                    time.sleep(3)
+                                    success = True
+                                    break
+                                
+                                # Method B: Native click (if A failed)
+                                print(f"[ATS DEBUG]   Method B: Native Selenium click...")
+                                try:
+                                    candidate_btn.click()
+                                    time.sleep(4)
+                                except Exception as ce:
+                                    print(f"[ATS DEBUG]   Native click failed: {ce}")
+                                    
+                                handles = self.browser.window_handles
+                                if len(handles) > 1:
+                                    self.browser.switch_to.window(handles[1])
+                                    url = self.browser.current_url
+                                    logger.info(f"✨ Captured ATS link (new tab): {url[:60]}...", step="extract_job")
+                                    print(f"[ATS DEBUG]   ✅ SUCCESS (Native New Tab): {url}")
+                                    self.browser.close()
+                                    self.browser.switch_to.window(original_window)
+                                    success = True
+                                    break
+                                elif self.browser.current_url != original_url and "linkedin.com" not in self.browser.current_url:
+                                    url = self.browser.current_url
+                                    logger.info(f"✨ Captured ATS link (same tab): {url[:60]}...", step="extract_job")
+                                    print(f"[ATS DEBUG]   ✅ SUCCESS (Native Same Tab): {url}")
+                                    self.browser.back()
+                                    time.sleep(3)
+                                    success = True
+                                    break
 
-            except Exception as e:
-                print(f"[ATS DEBUG] ❌ EXCEPTION in ATS extraction: {e}")
-                logger.debug(f"Failed to extract external apply link: {e}")
+                            if not success:
+                                current = self.browser.current_url
+                                print(f"[ATS DEBUG]   ⚠️ All click attempts failed. Current URL: {current}")
+                                logger.warning("Tried clicking Apply but could not capture external URL.", step="extract_job")
+                                
+                                # --- Click Failure Diagnostic Capture ---
+                                try:
+                                    debug_dir = os.path.join("logs", "debug")
+                                    os.makedirs(debug_dir, exist_ok=True)
+                                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                                    screenshot_path = os.path.join(debug_dir, f"click_failed_{job_id}_{timestamp}.png")
+                                    self.browser.driver.save_screenshot(screenshot_path)
+                                    html_path = os.path.join(debug_dir, f"click_failed_{job_id}_{timestamp}.html")
+                                    with open(html_path, "w", encoding="utf-8") as f:
+                                        f.write(self.browser.driver.page_source)
+                                    print(f"[ATS DEBUG] 📸 Click failure diagnostic saved to {debug_dir}")
+                                except Exception: pass
+                                # ----------------------------------------
+                    
+                    print(f"[ATS DEBUG] Final URL saved: {url}")
+                    print(f"[ATS DEBUG] ─────────────────────────────────────────\n")
+
+                except Exception as e:
+                    print(f"[ATS DEBUG] ❌ EXCEPTION in ATS extraction: {e}")
+                    logger.debug(f"Failed to extract external apply link: {e}")
             # --- End: ATS Link Extraction ---
 
             # Database Save
