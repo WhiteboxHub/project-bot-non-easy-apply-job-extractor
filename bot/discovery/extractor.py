@@ -330,7 +330,8 @@ class JobExtractor(Search):
             self.apply_native_title_filters()
 
     def apply_native_title_filters(self):
-        """Attempts to use the native LinkedIn UI to filter by Title."""
+        """Attempts to use the native LinkedIn UI to filter by Title checkboxes ONLY."""
+        import re
         if not self.title_filters:
             return
             
@@ -339,49 +340,63 @@ class JobExtractor(Search):
             
             # Click 'All filters' button
             try:
-                # Need to use a robust selector for LinkedIn's "All filters" button
                 all_filters_btn = self.browser.find_element(By.XPATH, "//button[contains(@aria-label, 'All filters') or contains(text(), 'All filters') or contains(@class, 'search-reusables__all-filters-pill-button')]")
                 self.browser.execute_script("arguments[0].click();", all_filters_btn)
                 time.sleep(3)
-            except Exception as e:
+            except Exception:
                 logger.warning("Could not find 'All filters' button, skipping native filter.")
                 return
             
-            # Find Title section checkboxes
-            # Look for all labels in the modal. We'll check if the text loosely matches our title_filters.
-            labels = self.browser.find_elements(By.XPATH, "//div[contains(@class, 'artdeco-modal')]//label | //div[contains(@class, 'search-reusables__filter-trigger-and-dropdown')]//label")
+            # --- Scope strictly to the Title section only ---
+            # Find labels that are INSIDE the section whose heading text is exactly "Title"
+            # This avoids touching "Job function", "Benefits", "Employer" etc.
+            title_section_labels = self.browser.find_elements(
+                By.XPATH,
+                "//*[self::h3 or self::h4 or self::legend or self::span]"
+                "[normalize-space(text())='Title']"
+                "/following-sibling::*//label"
+                " | "
+                "//*[self::h3 or self::h4 or self::legend or self::span]"
+                "[normalize-space(text())='Title']"
+                "/parent::*/following-sibling::*//label"
+            )
+            
+            # Fallback: if scoped search found nothing, look at the whole modal but be strict
+            if not title_section_labels:
+                logger.info("Title section not found by heading — scanning whole modal with strict matching.", step="job_extract")
+                title_section_labels = self.browser.find_elements(By.XPATH, "//div[contains(@class, 'artdeco-modal')]//label")
             
             clicked_any = False
-            for label in labels:
+            for label in title_section_labels:
                 try:
                     text_content = label.text.strip()
-                    if not text_content:
+                    # Only look at the first line (some labels have "Filter by X" as second line)
+                    first_line = text_content.split('\n')[0].strip()
+                    if not first_line:
                         continue
-                        
-                    text_lower = text_content.lower()
-                    
+
                     for f in self.title_filters:
-                        if f.lower() in text_lower:
+                        # Use word-boundary regex: \bAI\b won't match "Paid" or "Jobright.ai"
+                        pattern = r'\b' + re.escape(f) + r'\b'
+                        if re.search(pattern, first_line, re.IGNORECASE):
                             self.browser.execute_script("arguments[0].click();", label)
-                            logger.info(f"Checked native Title filter for: {text_content}")
-                            time.sleep(1)
+                            logger.info(f"✅ Checked Title filter: '{first_line}'")
+                            time.sleep(0.8)
                             clicked_any = True
                             break
                 except:
                     pass
             
             if clicked_any:
-                # Click 'Show results'
                 try:
                     show_results_btn = self.browser.find_element(By.XPATH, "//button[contains(@aria-label, 'Apply current filters') or contains(@data-control-name, 'all_filters_apply')] | //span[contains(text(), 'Show') and contains(text(), 'results')]/ancestor::button")
                     self.browser.execute_script("arguments[0].click();", show_results_btn)
-                    time.sleep(5) # Wait for page reload and processing
+                    time.sleep(5)
                     logger.info("Successfully applied native Title filters.", step="job_extract")
-                except Exception as e:
+                except Exception:
                     logger.warning("Could not click 'Show results' button.")
             else:
-                logger.info("No matching native Title filters were found in the UI. Relying on strict code-level filter.", step="job_extract")
-                # Close the modal
+                logger.info("No matching Title checkboxes found in the UI. Relying on code-level filter.", step="job_extract")
                 try:
                     close_btn = self.browser.find_element(By.XPATH, "//button[contains(@aria-label, 'Dismiss') or contains(@class, 'artdeco-modal__dismiss')]")
                     self.browser.execute_script("arguments[0].click();", close_btn)
@@ -389,7 +404,7 @@ class JobExtractor(Search):
                 except: pass
             
         except Exception as e:
-            logger.warning(f"Failed to apply native Title filters. Will rely on the code-level strict filter instead. Error: {e}")
+            logger.warning(f"Failed to apply native Title filters: {e}")
 
     def save_job(self, job_id, element, position, search_location, zipcode="", is_easy_apply=False):
         try:
