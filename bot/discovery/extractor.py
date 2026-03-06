@@ -347,24 +347,38 @@ class JobExtractor(Search):
                 logger.warning("Could not find 'All filters' button, skipping native filter.")
                 return
             
-            # --- Scope strictly to the Title section only ---
-            # Find labels that are INSIDE the section whose heading text is exactly "Title"
-            # This avoids touching "Job function", "Benefits", "Employer" etc.
+            # --- Scope STRICTLY to the Title section container ---
+            # Strategy: find the nearest ancestor container (fieldset, section, li, div)
+            # that CONTAINS a heading child with exact text "Title".
+            # Then grab labels ONLY within that same container.
+            # This prevents leakage into Company / Benefits / other sections.
             title_section_labels = self.browser.find_elements(
                 By.XPATH,
-                "//*[self::h3 or self::h4 or self::legend or self::span]"
-                "[normalize-space(text())='Title']"
-                "/following-sibling::*//label"
+                "//fieldset[.//legend[normalize-space(text())='Title']]//label"
                 " | "
-                "//*[self::h3 or self::h4 or self::legend or self::span]"
-                "[normalize-space(text())='Title']"
-                "/parent::*/following-sibling::*//label"
+                "//fieldset[.//h3[normalize-space(text())='Title']]//label"
+                " | "
+                "//section[.//h3[normalize-space(text())='Title']]//label"
+                " | "
+                "//li[.//h3[normalize-space(text())='Title']]//label"
+                " | "
+                "//div[.//h3[normalize-space(text())='Title'] and not(.//h3[normalize-space(text())!='Title'])]//label"
             )
-            
-            # Fallback: if scoped search found nothing, look at the whole modal but be strict
+
+            # Fallback: if still nothing, only use labels whose text EXACTLY matches a filter keyword
+            # (no scanning the whole modal loosely)
             if not title_section_labels:
-                logger.info("Title section not found by heading — scanning whole modal with strict matching.", step="job_extract")
-                title_section_labels = self.browser.find_elements(By.XPATH, "//div[contains(@class, 'artdeco-modal')]//label")
+                logger.info("Title section container not found — using exact-text-only fallback.", step="job_extract")
+                # Build an XPath that matches labels whose visible text exactly equals one of the title_filters
+                exact_conditions = " or ".join(
+                    [f"normalize-space(text())='{f}'" for f in self.title_filters]
+                    + [f"normalize-space(.)='{f}'" for f in self.title_filters]
+                )
+                title_section_labels = self.browser.find_elements(
+                    By.XPATH,
+                    f"//div[contains(@class, 'artdeco-modal')]//label[{exact_conditions}]"
+                )
+
             
             clicked_any = False
             for label in title_section_labels:
