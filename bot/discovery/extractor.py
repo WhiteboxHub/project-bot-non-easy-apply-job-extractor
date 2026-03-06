@@ -26,7 +26,7 @@ import csv
 import os
 
 class JobExtractor(Search):
-    def __init__(self, browser, candidate_id="default", blacklist=None, experience_level=None, csv_path=None, distance_miles=50, api_store=None, search_timespan="r86400"):
+    def __init__(self, browser, candidate_id="default", blacklist=None, experience_level=None, csv_path=None, distance_miles=50, api_store=None, search_timespan="r86400", title_filters=None):
         # We don't need workflow for extraction as we are not applying here
         # Passing None for workflow
         super().__init__(browser, None, blacklist, experience_level)
@@ -38,6 +38,7 @@ class JobExtractor(Search):
         self.mysql_store = None # Will be set by caller or during extraction
         self.search_timespan = search_timespan
         self.seen_jobs = self._load_seen_jobs()
+        self.title_filters = title_filters or []
         
         # Initialize CSV if provided
         if self.csv_path and not os.path.exists(self.csv_path):
@@ -213,6 +214,16 @@ class JobExtractor(Search):
                                 logger.info(f"🚫 Skipping EASY APPLY job: {job_id}")
                                 self.seen_jobs.add(job_id)
                                 continue
+
+                            # Apply strict title filter
+                            if self.title_filters:
+                                link_lower = link.text.lower()
+                                matched = any(f.lower() in link_lower for f in self.title_filters)
+                                if not matched:
+                                    title_preview = link.text.split('\n')[0][:50]
+                                    logger.info(f"🚫 Skipping NON-MATCHING title: {title_preview} (Job ID {job_id})")
+                                    self.seen_jobs.add(job_id)
+                                    continue
 
                             self.browser.execute_script("arguments[0].click();", link)
                             time.sleep(1)

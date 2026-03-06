@@ -109,6 +109,7 @@ def run_extraction():
                 password = cand.get('linkedin_password')
                 keywords = cand.get('keywords') or env_default_keywords
                 locations = cand.get('locations', [])
+                title_filters = cand.get('title_filters', [])
                 
                 # Start metrics tracking for this candidate
                 run_metrics = metrics.start_run(candidate_id, keywords, locations)
@@ -173,7 +174,8 @@ def run_extraction():
                                 csv_path=csv_filename, 
                                 distance_miles=current_dist,
                                 api_store=api_store,
-                                search_timespan=env_timespan
+                                search_timespan=env_timespan,
+                                title_filters=title_filters
                             )
                             
                             zip_match = re.search(r'\b\d{5,6}\b', current_loc)
