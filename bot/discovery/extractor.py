@@ -323,11 +323,6 @@ class JobExtractor(Search):
         self.browser.get(url)
         time.sleep(3)
         self.browser.execute_script("window.scrollTo(0, 0);")
-        
-        # At this point, the search results page is loaded.
-        # We can try to use the native LinkedIn Title filters if configured.
-        if jobs_per_page == 0:  # Only do this on the very first page of the search
-            self.apply_native_title_filters()
 
     def apply_native_title_filters(self):
         """Attempts to use the native LinkedIn UI to filter by Title checkboxes ONLY."""
