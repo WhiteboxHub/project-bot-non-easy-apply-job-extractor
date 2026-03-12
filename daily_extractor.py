@@ -110,6 +110,7 @@ def run_extraction():
                 keywords = cand.get('keywords') or env_default_keywords
                 locations = cand.get('locations', [])
                 title_filters = cand.get('title_filters', [])
+                job_type_filters = cand.get('job_type_filters', [])
                 
                 # Start metrics tracking for this candidate
                 run_metrics = metrics.start_run(candidate_id, keywords, locations)
@@ -177,7 +178,8 @@ def run_extraction():
                                     distance_miles=current_dist,
                                     api_store=api_store,
                                     search_timespan=env_timespan,
-                                    title_filters=title_filters
+                                    title_filters=title_filters,
+                                    job_type_filters=job_type_filters
                                 )
                                 
                                 zip_match = re.search(r'\b\d{5,6}\b', current_loc)

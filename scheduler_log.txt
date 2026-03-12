@@ -1,0 +1,66 @@
+2026-03-12 12:45:10 INFO    message=✅ Selector sync complete: 36 selectors written to DuckDB (data/selectors.duckdb)
+2026-03-12 12:45:10 INFO    message=Loaded 1 active candidates from YAML.
+2026-03-12 12:45:10 INFO    message=Using search settings: Distance=50mi, Location=United States, Timespan=24h (r86400), DryRun=False
+2026-03-12 12:45:10 INFO    message=Loaded API token from local cache.
+2026-03-12 12:45:10 INFO    message=Initialized APIStore for: https://api.whitebox-learning.com/api/positions/
+2026-03-12 12:45:10 INFO    message=--- Processing Candidate: candidate_001 (No Login) ---
+2026-03-12 12:45:10 INFO    message=Keywords: ['AI And Engineer', 'LLM And Engineer']
+2026-03-12 12:45:10 INFO    message=Locations: None
+2026-03-12 12:45:10 INFO    message=Candidate candidate_001 has no locations. Using default: United States
+2026-03-12 12:45:10 INFO    message=--- Starting Keyword Sequential Pass: AI And Engineer ---
+2026-03-12 12:45:10 INFO    message=Initializing browser for candidate_001...
+2026-03-12 12:45:10 INFO    message=Using absolute profile path: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\profiles\candidate_001
+2026-03-12 12:45:13 INFO    message=Chrome initialized successfully with forced version 144
+2026-03-12 12:45:13 INFO    message=Running without login (using profile or public search)...
+2026-03-12 12:45:13 INFO    message=  --- Keyword: AI And Engineer | Distance: 5 mi ---
+2026-03-12 12:45:13 DEBUG   message=Cleanup: No jobs older than 3 days found.
+2026-03-12 12:45:13 INFO    message=Starting extraction for: United States at 5mi with keyword 'AI And Engineer'
+2026-03-12 12:45:13 INFO    step=extract_init message=Extracting jobs for AI And Engineer: United States (Zipcode: United States)
+2026-03-12 12:45:13 INFO    message=📂 CSV file: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\exports\extractor_job_links.csv
+2026-03-12 12:45:13 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=0&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 12:45:18 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 12:45:18 WARNING message=Could not find 'All filters' button, skipping native filter.
+2026-03-12 12:45:23 INFO    step=job_extract message=Page 1 | 59.0m left
+2026-03-12 12:45:25 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 12:45:27 INFO    step=job_extract message=✅ Scrolling complete. Found 0 job cards to inspect.
+2026-03-12 12:45:28 INFO    step=job_extract message=Finished Page 1: 0 NEW links saved. Total so far: 0/9999
+2026-03-12 12:45:28 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 12:45:28 INFO    step=job_extract message=Next button not found, using URL pagination...
+2026-03-12 12:45:28 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=25&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 12:45:33 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 12:45:33 WARNING message=Could not find 'All filters' button, skipping native filter.
+2026-03-12 12:45:38 INFO    step=job_extract message=Page 2 | 59.0m left
+2026-03-12 12:45:40 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 12:45:42 INFO    step=job_extract message=✅ Scrolling complete. Found 0 job cards to inspect.
+2026-03-12 12:45:43 INFO    step=job_extract message=Finished Page 2: 0 NEW links saved. Total so far: 0/9999
+2026-03-12 12:45:43 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 12:45:43 INFO    step=job_extract message=Next button not found, using URL pagination...
+2026-03-12 12:45:43 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=50&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 12:45:48 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 12:45:48 WARNING message=Could not find 'All filters' button, skipping native filter.
+2026-03-12 12:45:53 INFO    step=job_extract message=Page 3 | 59.0m left
+2026-03-12 12:45:53 ERROR   step=job_extract message=Browser session lost during loop.
+2026-03-12 12:45:53 ERROR   message=Error processing location United States for keyword AI And Engineer: INVALID_SESSION_RESTART
+2026-03-12 12:45:53 INFO    message=--- Starting Keyword Sequential Pass: LLM And Engineer ---
+2026-03-12 12:45:53 INFO    message=Initializing browser for candidate_001...
+2026-03-12 12:45:53 INFO    message=Using absolute profile path: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\profiles\candidate_001
+2026-03-12 12:45:53 INFO    message=Chrome initialized successfully with forced version 144
+2026-03-12 12:45:54 INFO    message=Running without login (using profile or public search)...
+2026-03-12 12:45:54 INFO    message=  --- Keyword: LLM And Engineer | Distance: 5 mi ---
+2026-03-12 12:45:54 DEBUG   message=Cleanup: No jobs older than 3 days found.
+2026-03-12 12:45:54 INFO    message=Starting extraction for: United States at 5mi with keyword 'LLM And Engineer'
+2026-03-12 12:45:54 INFO    step=extract_init message=Extracting jobs for LLM And Engineer: United States (Zipcode: United States)
+2026-03-12 12:45:54 INFO    message=📂 CSV file: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\exports\extractor_job_links.csv
+2026-03-12 12:45:54 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=LLM%20And%20Engineer&location=United States&f_TPR=r86400&start=0&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 12:45:58 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 12:45:58 WARNING message=Could not find 'All filters' button, skipping native filter.
+2026-03-12 12:46:03 INFO    step=job_extract message=Page 1 | 59.0m left
+2026-03-12 12:46:05 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 12:46:07 INFO    step=job_extract message=✅ Scrolling complete. Found 0 job cards to inspect.
+2026-03-12 12:46:08 INFO    step=job_extract message=Finished Page 1: 0 NEW links saved. Total so far: 0/9999
+2026-03-12 12:46:08 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 12:46:08 INFO    step=job_extract message=Next button not found, using URL pagination...
+2026-03-12 12:46:08 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=LLM%20And%20Engineer&location=United States&f_TPR=r86400&start=25&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 12:46:12 WARNING message=⚠️ Run interrupted by user (Ctrl+C). Flushing all buffered jobs before exit...
+2026-03-12 12:46:12 INFO    message=No new jobs collected — nothing to flush.
+2026-03-12 12:46:12 INFO    message=✅ Daily Extraction completed.

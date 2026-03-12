@@ -50,8 +50,8 @@ LOCATORS = {
     },
     
     "links": {
-        "primary": (By.XPATH, "//div[contains(@class, 'job-card-container') or @data-job-id]"),
-        "fallback": (By.CSS_SELECTOR, ".job-card-list__entity-lockup")
+        "primary": (By.XPATH, "//div[contains(@class, 'job-card-container') or @data-job-id or contains(@class, 'base-card')]"),
+        "fallback": (By.CSS_SELECTOR, ".job-card-list__entity-lockup, .base-search-card, .base-card")
     },
     
     "fields": {
@@ -120,6 +120,21 @@ LOCATORS = {
         "fallback": (By.XPATH, "//button[contains(., 'Show more') and contains(@aria-label, 'Title')]")
     },
 
+    "job_type_filter_labels": {
+        "primary": (By.XPATH,
+            "//fieldset[.//legend[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'job type')]]//label"
+            " | //fieldset[.//h3[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'job type')]]//label"
+            " | //section[.//h3[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'job type')]]//label"
+            " | //li[.//h3[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'job type')]]//label"
+        ),
+        "fallback": (By.XPATH, "//div[contains(@class, 'artdeco-modal')]//label")
+    },
+
+    "job_type_filter_show_more": {
+        "primary": (By.XPATH, "//fieldset[.//h3[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'job type')]]//button[contains(@aria-label, 'Show more')]"),
+        "fallback": (By.XPATH, "//button[contains(., 'Show more') and contains(@aria-label, 'Job type')]")
+    },
+
     "all_filters_show_results": {
         "primary": (By.XPATH, "//button[contains(@aria-label, 'Apply current filters') or contains(@data-control-name, 'all_filters_apply')]"),
         "fallback": (By.XPATH, "//span[contains(text(), 'Show') and contains(text(), 'results')]/ancestor::button")
@@ -184,7 +199,22 @@ LOCATORS = {
 
     "job_search_list_container": {
         "primary": (By.CSS_SELECTOR, ".jobs-search-results-list"),
-        "fallback": (By.CSS_SELECTOR, ".scaffold-layout__list-container, .jobs-search__results-list")
+        "fallback": (By.CSS_SELECTOR, ".scaffold-layout__list-container, .jobs-search__results-list, .jobs-search__results-list")
+    },
+    
+    "guest_job_type_pill": {
+        "primary": (By.XPATH, "//button[contains(@aria-label, 'Job type filter')]"),
+        "fallback": (By.CSS_SELECTOR, "button[aria-label*='Job type filter']")
+    },
+    
+    "guest_experience_pill": {
+        "primary": (By.XPATH, "//button[contains(@aria-label, 'Experience level filter')]"),
+        "fallback": (By.CSS_SELECTOR, "button[aria-label*='Experience level filter']")
+    },
+    
+    "guest_modal_dismiss": {
+        "primary": (By.XPATH, "//button[contains(@class, 'modal__dismiss') or contains(@aria-label, 'Dismiss') or contains(@class, 'artdeco-modal__dismiss')]"),
+        "fallback": (By.CSS_SELECTOR, "button.modal__dismiss, button[aria-label='Dismiss'], .artdeco-modal__dismiss")
     }
 }
 

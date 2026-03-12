@@ -28,7 +28,7 @@ import re
 from bot.utils.selectors import LOCATORS, get_locator, UI_TEXT
 
 class JobExtractor(Search):
-    def __init__(self, browser, candidate_id="default", blacklist=None, experience_level=None, csv_path=None, distance_miles=50, api_store=None, search_timespan="r86400", title_filters=None):
+    def __init__(self, browser, candidate_id="default", blacklist=None, experience_level=None, csv_path=None, distance_miles=50, api_store=None, search_timespan="r86400", title_filters=None, job_type_filters=None):
         # We don't need workflow for extraction as we are not applying here
         # Passing None for workflow
         super().__init__(browser, None, blacklist, experience_level)
@@ -41,6 +41,17 @@ class JobExtractor(Search):
         self.search_timespan = search_timespan
         self.seen_jobs = self._load_seen_jobs()
         self.title_filters = title_filters or []
+        self.job_type_filters = job_type_filters or []
+        
+        # Load blacklist from .env if not provided (for standalone runs)
+        if not blacklist:
+            env_blacklist = os.getenv("BLACKLIST_WORDS", "")
+            if env_blacklist:
+                self.blacklist = [w.strip() for w in env_blacklist.split(",") if w.strip()]
+            else:
+                self.blacklist = []
+        else:
+            self.blacklist = blacklist
         
         # Initialize CSV if provided
         if self.csv_path and not os.path.exists(self.csv_path):
@@ -236,6 +247,21 @@ class JobExtractor(Search):
                                     self.seen_jobs.add(job_id)
                                     continue
 
+                            # Apply Blacklist (Bad Words) filter
+                            if self.blacklist:
+                                link_text = link.text.replace('\n', ' ')
+                                blacklisted = False
+                                for word in self.blacklist:
+                                    if word.lower() in link_text.lower():
+                                        blacklisted = True
+                                        break
+                                
+                                if blacklisted:
+                                    title_preview = link_text.split('|')[0].strip()[:50]
+                                    logger.info(f"🚫 Skipping BLACKLISTED job: {title_preview} (contains '{word}')")
+                                    self.seen_jobs.add(job_id)
+                                    continue
+
                             self.browser.execute_script("arguments[0].click();", link)
                             time.sleep(1)
                             
@@ -334,12 +360,15 @@ class JobExtractor(Search):
             keyword_param = encoded_keyword
 
         # --- Filter Caching Logic ---
-        # If we have captured the numeric IDs (f_T) for our title filters previously, 
-        # add them to the URL directly to avoid UI clicking "again and again".
+        # Capture and reuse numeric IDs for both Title (f_T) and Job Type (f_JT) filters
         filter_param = ""
-        cached_filters = getattr(self.browser, f"f_T_cache_{position}", None)
-        if cached_filters:
-            filter_param = f"&f_T={cached_filters}"
+        cached_titles = getattr(self.browser, f"f_T_cache_{position}", None)
+        if cached_titles:
+            filter_param += f"&f_T={cached_titles}"
+            
+        cached_job_types = getattr(self.browser, f"f_JT_cache_{position}", None)
+        if cached_job_types:
+            filter_param += f"&f_JT={cached_job_types}"
             
         url = (f"{LINKEDIN_BASE_URL}/jobs/search/?" + "keywords=" +
                keyword_param + location_param + search_time_filter + "&start=" + str(jobs_per_page) + 
@@ -350,13 +379,13 @@ class JobExtractor(Search):
         time.sleep(3)
         self.browser.execute_script("window.scrollTo(0, 0);")
         
-        # Apply native filters (Titles) IF they are not already in the URL
-        if not cached_filters:
-            self.apply_native_title_filters()
+        # Apply native filters (Titles + Job Type) IF they are not already cached in the URL
+        if not cached_titles or not cached_job_types:
+            self.apply_native_filters()
 
-    def apply_native_title_filters(self):
-        """Attempts to use the native LinkedIn UI to filter by Title checkboxes ONLY."""
-        if not self.title_filters:
+    def apply_native_filters(self):
+        """Attempts to use the native LinkedIn UI to filter by Title and Job Type checkboxes."""
+        if not self.title_filters and not self.job_type_filters:
             return
             
         try:
@@ -373,7 +402,8 @@ class JobExtractor(Search):
                     btn_loc = get_locator("all_filters_button", use_fallback=True)
                     all_filters_btn = self.browser.find_element(*btn_loc)
                 except Exception:
-                    logger.warning("Could not find 'All filters' button, skipping native filter.")
+                    logger.info("All filters button not found. Attempting Guest Mode individual pills...", step="job_extract")
+                    self._apply_guest_pill_filters()
                     return
             
             self.browser.execute_script("arguments[0].click();", all_filters_btn)
@@ -398,60 +428,14 @@ class JobExtractor(Search):
             except Exception as ree:
                 logger.debug(f"Reset filters failed (might not be visible or already clear): {ree}")
             
-            # Find labels inside the Title section — selector managed in selectors.py
-            title_section_labels = self.browser.find_elements(*get_locator("title_filter_labels"))
-            if not title_section_labels:
-                # Try fallback
-                title_section_labels = self.browser.find_elements(*get_locator("title_filter_labels", use_fallback=True))
-
-            if not title_section_labels:
-                 logger.info("Could not find any Title filter labels in the UI.", step="job_extract")
-            else:
-                # Try to expand "Show more" if it exists
-                try:
-                    show_more_loc = get_locator("title_filter_show_more")
-                    show_more_btn = self.browser.find_element(*show_more_loc)
-                    if show_more_btn and show_more_btn.is_displayed():
-                        logger.info("Clicking 'Show more' in Title section...", step="job_extract")
-                        self.browser.execute_script("arguments[0].click();", show_more_btn)
-                        time.sleep(1.5)
-                        # Re-fetch labels after expansion
-                        title_section_labels = self.browser.find_elements(*get_locator("title_filter_labels"))
-                except:
-                    pass
-
             clicked_any = False
-            for label in title_section_labels:
-                try:
-                    # Scroll to element to ensure it's interactable
-                    self.browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", label)
-                    time.sleep(0.1)
-                    
-                    text_content = label.text.strip()
-                    first_line = text_content.split('\n')[0].strip()
-                    if not first_line:
-                        continue
+            # 1. Handle TITLE Filters
+            if self.title_filters:
+                clicked_any |= self._apply_checkbox_section("title_filter_labels", "title_filter_show_more", self.title_filters, "Title")
 
-                    for f in self.title_filters:
-                        # Precise matching: Use regex with word boundaries to ensure "AI" matches "AI Engineer" 
-                        # but NOT "Environmental sustainability".
-                        # Also avoid matching on ".ai" domains/company names for the "AI" short filter.
-                        import re
-                        pattern = r'\b' + re.escape(f.strip()) + r'\b'
-                        
-                        # Special guard: If filter is "AI", ensure it's not preceded by a dot (e.g., ".ai")
-                        if f.strip().lower() == "ai" and ".ai" in first_line.lower():
-                            if not re.search(r'(?<!\.)\b' + re.escape(f.strip()) + r'\b', first_line, re.IGNORECASE):
-                                continue
-
-                        if re.search(pattern, first_line, re.IGNORECASE):
-                            self.browser.execute_script("arguments[0].click();", label)
-                            logger.info(f"✅ Checked Title filter: '{first_line}'")
-                            time.sleep(0.5)
-                            clicked_any = True
-                            break
-                except:
-                    pass
+            # 2. Handle JOB TYPE Filters
+            if self.job_type_filters:
+                clicked_any |= self._apply_checkbox_section("job_type_filter_labels", "job_type_filter_show_more", self.job_type_filters, "Job Type")
             
             if clicked_any:
                 # Mark as filtered for this session to avoid redundant clicks if URL maintains state
@@ -471,34 +455,148 @@ class JobExtractor(Search):
                 if show_btn:
                     self.browser.execute_script("arguments[0].click();", show_btn)
                     time.sleep(5)
-                    logger.info("Successfully applied native Title filters.", step="job_extract")
+                    logger.info("Successfully applied native filters.", step="job_extract")
                     
-                    # --- Capture the f_T IDs from URL for next time (Distance 10/25/50) ---
+                    # --- Capture the f_T and f_JT IDs from URL for next time ---
                     try:
                         current_url = self.browser.current_url
+                        # Title IDs
                         ft_match = re.search(r'[?&]f_T=([^&]+)', current_url)
                         if ft_match:
                             ft_value = ft_match.group(1)
                             setattr(self.browser, f"f_T_cache_{self.position}", ft_value)
-                            logger.info(f"💾 Captured Title Filter IDs: {ft_value}. Future searches for this keyword will use URL parameter directly.", step="job_extract")
+                            logger.info(f"💾 Cached Title Filter IDs: {ft_value}", step="job_extract")
+                        
+                        # Job Type IDs
+                        fjt_match = re.search(r'[?&]f_JT=([^&]+)', current_url)
+                        if fjt_match:
+                            fjt_value = fjt_match.group(1)
+                            setattr(self.browser, f"f_JT_cache_{self.position}", fjt_value)
+                            logger.info(f"💾 Cached Job Type IDs: {fjt_value}", step="job_extract")
                     except Exception as e_ft:
-                        logger.debug(f"Could not capture f_T parameter from URL: {e_ft}")
+                        logger.debug(f"Could not capture filter parameters from URL: {e_ft}")
             else:
                 logger.info("No matching Title checkboxes found in the UI. Relying on code-level filter.", step="job_extract")
-                # Close modal — selector managed in selectors.py
+            # Close modal — selector managed in selectors.py
+            try:
+                dismiss_loc = get_locator("modal_dismiss")
+                self.browser.find_element(*dismiss_loc).click()
+            except:
                 try:
-                    dismiss_loc = get_locator("modal_dismiss")
+                    dismiss_loc = get_locator("modal_dismiss", use_fallback=True)
                     self.browser.find_element(*dismiss_loc).click()
-                except:
-                    try:
-                        dismiss_loc = get_locator("modal_dismiss", use_fallback=True)
-                        self.browser.find_element(*dismiss_loc).click()
-                    except: pass
-                time.sleep(1)
+                except: pass
+            time.sleep(1)
             
         except Exception as e:
-            logger.warning(f"Failed to apply native Title filters: {e}")
+            logger.error(f"Error applying native filters: {e}")
 
+    def _apply_guest_pill_filters(self):
+        """Logic for Guest View where filters are individual pills on the main page."""
+        try:
+            # 0. Dismiss any persistent guest modals first
+            try:
+                dismiss_loc = get_locator("guest_modal_dismiss")
+                modal_btns = self.browser.find_elements(*dismiss_loc)
+                for btn in modal_btns:
+                    if btn.is_displayed():
+                        self.browser.execute_script("arguments[0].click();", btn)
+                        logger.info("Dismissed guest modal.", step="job_extract")
+                        time.sleep(1)
+            except: pass
+
+            # 1. Job Type Pill
+            if self.job_type_filters:
+                pill_loc = get_locator("guest_job_type_pill")
+                pills = self.browser.find_elements(*pill_loc)
+                if pills and pills[0].is_displayed():
+                    logger.info(f"Clicking Job Type pill for filters: {self.job_type_filters}", step="job_extract")
+                    self.browser.execute_script("arguments[0].click();", pills[0])
+                    time.sleep(2)
+                    
+                    # Guest View dropdowns are basically small modals
+                    clicked = self._apply_checkbox_section("job_type_filter_labels", None, self.job_type_filters, "Job Type (Guest)")
+                    
+                    if clicked:
+                        # Click Done/Apply in the pill dropdown
+                        try:
+                            # Usually there's a specific "Done" button in the dropdown
+                            done_loc = (By.XPATH, "//button[contains(., 'Done') or contains(., 'Apply')]")
+                            done_btn = self.browser.find_element(*done_loc)
+                            self.browser.execute_script("arguments[0].click();", done_btn)
+                            time.sleep(3)
+                            logger.info("Applied Job Type pill filters.", step="job_extract")
+                        except:
+                            # If no done button, clicking the pill again might close it or just click outside
+                            self.browser.execute_script("arguments[0].click();", pills[0])
+                            time.sleep(2)
+            
+            # 2. Experience Level Pill (if needed in future)
+            # ...
+            
+        except Exception as e:
+            logger.debug(f"Guest pill filtering failed: {e}")
+
+    def _apply_checkbox_section(self, label_locator_key, show_more_locator_key, filter_values, section_name):
+        """Helper to find and click checkboxes in a specific section of the filter modal."""
+        try:
+            # Find labels inside the section
+            labels = self.browser.find_elements(*get_locator(label_locator_key))
+            if not labels:
+                labels = self.browser.find_elements(*get_locator(label_locator_key, use_fallback=True))
+
+            if not labels:
+                 logger.info(f"Could not find any {section_name} filter labels in the UI.", step="job_extract")
+                 return False
+
+            # Try to expand "Show more" if it exists
+            try:
+                show_more_loc = get_locator(show_more_locator_key)
+                show_more_btn = self.browser.find_element(*show_more_loc)
+                if show_more_btn and show_more_btn.is_displayed():
+                    logger.info(f"Clicking 'Show more' in {section_name} section...", step="job_extract")
+                    self.browser.execute_script("arguments[0].click();", show_more_btn)
+                    time.sleep(1.5)
+                    # Re-fetch labels after expansion
+                    labels = self.browser.find_elements(*get_locator(label_locator_key))
+            except:
+                pass
+
+            clicked_any = False
+            for label in labels:
+                try:
+                    # Scroll to element to ensure it's interactable
+                    self.browser.execute_script("arguments[0].scrollIntoView({block: 'center'});", label)
+                    time.sleep(0.1)
+                    
+                    text_content = label.text.strip()
+                    first_line = text_content.split('\n')[0].strip()
+                    if not first_line:
+                        continue
+
+                    for f in filter_values:
+                        import re
+                        pattern = r'\b' + re.escape(f.strip()) + r'\b'
+                        
+                        # Special guard for "AI" title filter
+                        if section_name == "Title" and f.strip().lower() == "ai" and ".ai" in first_line.lower():
+                            if not re.search(r'(?<!\.)\b' + re.escape(f.strip()) + r'\b', first_line, re.IGNORECASE):
+                                continue
+
+                        if re.search(pattern, first_line, re.IGNORECASE):
+                            # Check if already checked (LinkedIn uses aria-checked on some inputs or just classes)
+                            # Clicking usually toggles. We assume it's unchecked after 'Reset'.
+                            self.browser.execute_script("arguments[0].click();", label)
+                            logger.info(f"✅ Checked {section_name} filter: '{first_line}'")
+                            time.sleep(0.5)
+                            clicked_any = True
+                            break
+                except:
+                    pass
+            return clicked_any
+        except Exception as e:
+            logger.debug(f"Error in section {section_name}: {e}")
+            return False
 
     def save_job(self, job_id, element, position, search_location, zipcode="", is_easy_apply=False):
         try:
