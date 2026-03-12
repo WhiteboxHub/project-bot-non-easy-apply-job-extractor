@@ -31,6 +31,11 @@ candidates:
       - "Machine Learning"
       - "AI"
       
+    # Job Type Filters (e.g., Full-time, Contract, Part-time)
+    job_type_filters:
+      - "Full-time"
+      - "Contract"
+    
     # Locations (optional list of Zipcodes)
     locations:
       # - "90210"
