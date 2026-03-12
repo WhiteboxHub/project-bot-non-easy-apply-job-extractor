@@ -235,3 +235,498 @@
 2026-03-12 15:21:40 WARNING message=⚠️ Run interrupted by user (Ctrl+C). Flushing all buffered jobs before exit...
 2026-03-12 15:21:40 INFO    message=No new jobs collected — nothing to flush.
 2026-03-12 15:21:40 INFO    message=✅ Daily Extraction completed.
+2026-03-12 15:43:56 INFO    message=✅ Selector sync complete: 25 selectors written to SQLite (data/bot_data.sqlite)
+2026-03-12 15:43:56 INFO    message=Loaded 1 active candidates from YAML.
+2026-03-12 15:43:56 INFO    message=Using search settings: Distance=50mi, Location=United States, Timespan=24h (r86400), DryRun=False
+2026-03-12 15:43:56 INFO    message=Loaded API token from local cache.
+2026-03-12 15:43:56 INFO    message=Initialized APIStore for: https://api.whitebox-learning.com/api/positions/
+2026-03-12 15:43:56 INFO    message=--- Processing Candidate: candidate_001 (No Login) ---
+2026-03-12 15:43:56 INFO    message=Keywords: ['AI And Engineer', 'LLM And Engineer']
+2026-03-12 15:43:56 INFO    message=Locations: None
+2026-03-12 15:43:56 INFO    message=Candidate candidate_001 has no locations. Using default: United States
+2026-03-12 15:43:56 INFO    message=--- Starting Keyword Sequential Pass: AI And Engineer ---
+2026-03-12 15:43:56 INFO    message=Initializing browser for candidate_001...
+2026-03-12 15:43:56 INFO    message=Using absolute profile path: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\profiles\candidate_001
+2026-03-12 15:43:59 INFO    message=Chrome initialized successfully with forced version 144
+2026-03-12 15:43:59 INFO    message=Running without login (using profile or public search)...
+2026-03-12 15:43:59 INFO    message=  --- Keyword: AI And Engineer | Distance: 5 mi ---
+2026-03-12 15:43:59 DEBUG   message=Cleanup: No jobs older than 3 days found.
+2026-03-12 15:43:59 INFO    message=Starting extraction for: United States at 5mi with keyword 'AI And Engineer'
+2026-03-12 15:43:59 INFO    step=extract_init message=Extracting jobs for AI And Engineer: United States (Zipcode: United States)
+2026-03-12 15:43:59 INFO    message=📂 CSV file: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\exports\extractor_job_links.csv
+2026-03-12 15:43:59 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=0&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 15:44:04 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 15:44:04 INFO    step=job_extract message=All filters button not found. Attempting Guest Mode individual pills...
+2026-03-12 15:44:04 INFO    step=job_extract message=Dismissed guest modal.
+2026-03-12 15:44:10 INFO    step=job_extract message=Page 1 | 59.0m left
+2026-03-12 15:44:12 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 15:44:14 INFO    step=job_extract message=✅ Scrolling complete. Found 0 job cards to inspect.
+2026-03-12 15:44:15 INFO    step=job_extract message=Finished Page 1: 0 NEW links saved. Total so far: 0/9999
+2026-03-12 15:44:15 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 15:44:15 INFO    step=job_extract message=Next button not found, using URL pagination...
+2026-03-12 15:44:15 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=25&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 15:44:20 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 15:44:20 INFO    step=job_extract message=All filters button not found. Attempting Guest Mode individual pills...
+2026-03-12 15:44:20 INFO    step=job_extract message=Dismissed guest modal.
+2026-03-12 15:44:21 INFO    step=job_extract message=Clicking Job Type pill for filters: ['Full-time', 'Contract']
+2026-03-12 15:44:23 INFO    step=job_extract message=Could not find any Job Type (Guest) filter labels in the UI.
+2026-03-12 15:44:28 INFO    step=job_extract message=Page 2 | 59.0m left
+2026-03-12 15:44:30 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 15:44:31 INFO    step=job_extract message=✅ Scrolling complete. Found 60 job cards to inspect.
+2026-03-12 15:44:32 INFO    message=🔍 Job Check: ID=None | Text=ML-AI Engineering Intern | ML-AI Engineering Intern | Tech Economy | San Francisco, CA | 8 hours ago
+2026-03-12 15:44:32 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:32 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer | Machine Learning Engineer | Iopa Solutions | New York, United States | Actively 
+2026-03-12 15:44:32 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:32 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | AtScale | Boston, MA | 8 hours ago
+2026-03-12 15:44:32 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:32 INFO    message=🔍 Job Check: ID=None | Text=AI/Cloud Security Engineer | AI/Cloud Security Engineer | MedReview Inc. | New York, NY | 7 hours ago
+2026-03-12 15:44:32 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:32 INFO    message=🔍 Job Check: ID=None | Text=Junior AI/ML Engineer (Remote) | Junior AI/ML Engineer (Remote) | Lensa | Boston, MA | 21 hours ago
+2026-03-12 15:44:32 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:32 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer | Machine Learning Engineer | 10a Labs | United States | 11 hours ago
+2026-03-12 15:44:32 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer | Machine Learning Engineer | Jobgether | United States | 9 hours ago
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=ML-AI Engineering Intern | ML-AI Engineering Intern | Bain & Company | San Francisco, CA | Actively Hiring | 1
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=ML-AI Engineering Intern | ML-AI Engineering Intern | Bain & Company | Boston, MA | Actively Hiring | 18 hours
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Founding ML Engineer | Founding ML Engineer | Crustdata (YC F24) | San Francisco, CA | 21 hours ago
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer I (New Grad) | Software Engineer I (New Grad) | Okta | San Francisco, CA | Actively Hiring
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Entry level AI/ML Engineer: SVL | Entry level AI/ML Engineer: SVL | Lensa | San Jose, CA | 21 hours ago
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Fintech | Tampa, FL | 5 minutes ago
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer - AI Applications | Software Engineer - AI Applications | Williams AV | Eden Prairie, MN
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | TestSprite | Seattle, WA | 22 hours ago
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer | Software Engineer | Funnel Leasing | New York, NY | 5 hours ago
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | PortX | Seattle, WA | Medical insuranc
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer, HD Map | Machine Learning Engineer, HD Map | Bot Auto | Greater Houston | 7 hours
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=AI Developer Experience | AI Developer Experience | Mashgin | Palo Alto, CA | 1 hour ago
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | InfoVision Inc. | Irving, TX | Activel
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer, AI Software Tools (Multiple Levels) | Software Engineer, AI Software Tools (Multipl
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer, Stripe Assistant | Machine Learning Engineer, Stripe Assistant | Stripe | New Y
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | CareerXperts Consulting | United Sta
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | DATAEXL INFORMATION LLC | Sunnyvale,
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer | Software Engineer | Funnel Leasing | Charleston, SC | 5 hours ago
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:33 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | Enzo Tech Group | New Jersey, United
+2026-03-12 15:44:33 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | Mitchell Martin Inc. | New York, NY | Actively Hiring | 7 hours ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | Berkley Hunt | San Francisco, CA | 18 hours ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Capgemini | Atlanta, GA | Actively Hiring | 12 hours ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | Spacetime Agents | San Francisco Bay Area | 25 minutes ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Applied AI Engineer | Applied AI Engineer | Salient | San Francisco, CA | 12 hours ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Python AI Engineer | Python AI Engineer | TechDoQuest | Cleveland, OH | Actively Hiring | 45 minutes ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence (AI) Engineer | Artificial Intelligence (AI) Engineer | KDA CONSULTING INC | Bethe
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | Talent Groups | Austin, TX | Actively 
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Newt Global | Dallas, TX | Actively Hiring | 1 day ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Ops Engineer | Machine Learning Ops Engineer | Elsevier | Philadelphia, PA | Actively Hirin
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Entry level AI/ML Engineer: SVL | Entry level AI/ML Engineer: SVL | IBM | San Jose, CA | Actively Hiring | 7 h
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer – HealthTech Start-up | AI Engineer – HealthTech Start-up | DigiTech Resourcing | United State
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | Usmart Technologies | Dallas, TX | 2 hours ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | The Phoenix Group | Stamford, CT | Act
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Capgemini | Bridgewater, NY | Actively Hiring | 6 hours ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | Stability Technology | United States
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Safe-Guard Products International | Atlanta, GA | Actively Hiring | 6 hours 
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Python Software Engineer | Python Software Engineer | MORSE Corp | Greater Boston | 10 hours ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=AI/ML RTL Engineer | AI/ML RTL Engineer | Qualcomm | Austin, TX | Actively Hiring | 11 hours ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:34 INFO    message=🔍 Job Check: ID=None | Text=Applied AI Engineer | Applied AI Engineer | Arcade | San Francisco, CA | 2 hours ago
+2026-03-12 15:44:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=AI Software Engineer | AI Software Engineer | Solidigm | Rancho Cordova, CA | Actively Hiring | 2 hours ago
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=Applied Machine Learning Engineer | Applied Machine Learning Engineer | Fireworks AI | San Mateo, CA | 11 ho
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer, Stripe Assistant | Machine Learning Engineer, Stripe Assistant | Stripe | San F
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer Intern | AI Engineer Intern | Chubb | Jersey City, NJ | Actively Hiring | 5 hours ago
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=AI/Ml Software Engineer | AI/Ml Software Engineer | SIMARN Solutions | Plano, TX | 1 day ago
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer - AI/ML | AI Engineer - AI/ML | Optum | Minnetonka, MN | Actively Hiring | 22 hours ago
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer Intern | AI Engineer Intern | Chubb | Jersey City, NJ | Actively Hiring | 5 hours ago
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=AI Solutions Engineer II | AI Solutions Engineer II | Rivian | Irvine, CA | Be an early applicant | 32 minutes
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=Applied AI Engineer - Artificial Intelligence | Applied AI Engineer - Artificial Intelligence | Avenue 4
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=AI Developer | AI Developer | US Tech Solutions | Washington DC-Baltimore Area | Actively Hiring | 1 hour ago
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=AI ML Engineer | AI ML Engineer | SRM Digital LLC | Mason, OH | 23 hours ago
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=AI Robotics Engineer | AI Robotics Engineer | General Motors | Mountain View, CA | Actively Hiring | 8 hours a
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer | Machine Learning Engineer | RK Infotech LLC | Florida, United States | 8 hours a
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer - Early Career | Machine Learning Engineer - Early Career | Jobright.ai | United
+2026-03-12 15:44:35 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:35 INFO    step=job_extract message=Finished Page 2: 0 NEW links saved. Total so far: 0/9999
+2026-03-12 15:44:35 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 15:44:35 INFO    step=job_extract message=Next button not found, using URL pagination...
+2026-03-12 15:44:35 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=50&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 15:44:40 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 15:44:40 INFO    step=job_extract message=All filters button not found. Attempting Guest Mode individual pills...
+2026-03-12 15:44:40 INFO    step=job_extract message=Clicking Job Type pill for filters: ['Full-time', 'Contract']
+2026-03-12 15:44:42 INFO    step=job_extract message=Could not find any Job Type (Guest) filter labels in the UI.
+2026-03-12 15:44:47 INFO    step=job_extract message=Page 3 | 59.0m left
+2026-03-12 15:44:49 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 15:44:50 INFO    step=job_extract message=✅ Scrolling complete. Found 60 job cards to inspect.
+2026-03-12 15:44:51 INFO    message=🔍 Job Check: ID=None | Text=ML-AI Engineering Intern | ML-AI Engineering Intern | Tech Economy | San Francisco, CA | 8 hours ago
+2026-03-12 15:44:51 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:51 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer | Machine Learning Engineer | Iopa Solutions | New York, United States | Actively 
+2026-03-12 15:44:51 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:51 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | AtScale | Boston, MA | 8 hours ago
+2026-03-12 15:44:51 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:51 INFO    message=🔍 Job Check: ID=None | Text=AI/Cloud Security Engineer | AI/Cloud Security Engineer | MedReview Inc. | New York, NY | 7 hours ago
+2026-03-12 15:44:51 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:51 INFO    message=🔍 Job Check: ID=None | Text=Junior AI/ML Engineer (Remote) | Junior AI/ML Engineer (Remote) | Lensa | Boston, MA | 21 hours ago
+2026-03-12 15:44:51 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:51 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer | Machine Learning Engineer | 10a Labs | United States | 11 hours ago
+2026-03-12 15:44:51 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:51 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer | Machine Learning Engineer | Jobgether | United States | 9 hours ago
+2026-03-12 15:44:51 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:51 INFO    message=🔍 Job Check: ID=None | Text=ML-AI Engineering Intern | ML-AI Engineering Intern | Bain & Company | San Francisco, CA | Actively Hiring | 1
+2026-03-12 15:44:51 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:51 INFO    message=🔍 Job Check: ID=None | Text=ML-AI Engineering Intern | ML-AI Engineering Intern | Bain & Company | Boston, MA | Actively Hiring | 18 hours
+2026-03-12 15:44:51 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Founding ML Engineer | Founding ML Engineer | Crustdata (YC F24) | San Francisco, CA | 21 hours ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer I (New Grad) | Software Engineer I (New Grad) | Okta | San Francisco, CA | Actively Hiring
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Entry level AI/ML Engineer: SVL | Entry level AI/ML Engineer: SVL | Lensa | San Jose, CA | 21 hours ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Fintech | Tampa, FL | 6 minutes ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer - AI Applications | Software Engineer - AI Applications | Williams AV | Eden Prairie, MN
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | TestSprite | Seattle, WA | 22 hours ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer | Software Engineer | Funnel Leasing | New York, NY | 5 hours ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | PortX | Seattle, WA | Medical insuranc
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer, HD Map | Machine Learning Engineer, HD Map | Bot Auto | Greater Houston | 7 hours
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=AI Developer Experience | AI Developer Experience | Mashgin | Palo Alto, CA | 1 hour ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | InfoVision Inc. | Irving, TX | Activel
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer, AI Software Tools (Multiple Levels) | Software Engineer, AI Software Tools (Multipl
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer, Stripe Assistant | Machine Learning Engineer, Stripe Assistant | Stripe | New Y
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | CareerXperts Consulting | United Sta
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | DATAEXL INFORMATION LLC | Sunnyvale,
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Software Engineer | Software Engineer | Funnel Leasing | Charleston, SC | 5 hours ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | Enzo Tech Group | New Jersey, United
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | Mitchell Martin Inc. | New York, NY | Actively Hiring | 7 hours ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | Berkley Hunt | San Francisco, CA | 18 hours ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:52 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Capgemini | Atlanta, GA | Actively Hiring | 12 hours ago
+2026-03-12 15:44:52 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | Spacetime Agents | San Francisco Bay Area | 26 minutes ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Applied AI Engineer | Applied AI Engineer | Salient | San Francisco, CA | 12 hours ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Python AI Engineer | Python AI Engineer | TechDoQuest | Cleveland, OH | Actively Hiring | 45 minutes ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence (AI) Engineer | Artificial Intelligence (AI) Engineer | KDA CONSULTING INC | Bethe
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | Talent Groups | Austin, TX | Actively 
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Newt Global | Dallas, TX | Actively Hiring | 1 day ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Ops Engineer | Machine Learning Ops Engineer | Elsevier | Philadelphia, PA | Actively Hirin
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Entry level AI/ML Engineer: SVL | Entry level AI/ML Engineer: SVL | IBM | San Jose, CA | Actively Hiring | 7 h
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | Usmart Technologies | Dallas, TX | 2 hours ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer – HealthTech Start-up | AI Engineer – HealthTech Start-up | DigiTech Resourcing | United State
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | The Phoenix Group | Stamford, CT | Act
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Capgemini | Bridgewater, NY | Actively Hiring | 6 hours ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Artificial Intelligence Engineer | Artificial Intelligence Engineer | Stability Technology | United States
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=AI/ML Engineer | AI/ML Engineer | Safe-Guard Products International | Atlanta, GA | Actively Hiring | 6 hours 
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Python Software Engineer | Python Software Engineer | MORSE Corp | Greater Boston | 10 hours ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=AI/ML RTL Engineer | AI/ML RTL Engineer | Qualcomm | Austin, TX | Actively Hiring | 11 hours ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Applied AI Engineer | Applied AI Engineer | Arcade | San Francisco, CA | 2 hours ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=AI Software Engineer | AI Software Engineer | Solidigm | Rancho Cordova, CA | Actively Hiring | 2 hours ago
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:53 INFO    message=🔍 Job Check: ID=None | Text=Applied Machine Learning Engineer | Applied Machine Learning Engineer | Fireworks AI | San Mateo, CA | 11 ho
+2026-03-12 15:44:53 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer, Stripe Assistant | Machine Learning Engineer, Stripe Assistant | Stripe | San F
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer Intern | AI Engineer Intern | Chubb | Jersey City, NJ | Actively Hiring | 5 hours ago
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=AI/Ml Software Engineer | AI/Ml Software Engineer | SIMARN Solutions | Plano, TX | 1 day ago
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer - AI/ML | AI Engineer - AI/ML | Optum | Minnetonka, MN | Actively Hiring | 22 hours ago
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer Intern | AI Engineer Intern | Chubb | Jersey City, NJ | Actively Hiring | 5 hours ago
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=AI Solutions Engineer II | AI Solutions Engineer II | Rivian | Irvine, CA | Be an early applicant | 33 minutes
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=Applied AI Engineer - Artificial Intelligence | Applied AI Engineer - Artificial Intelligence | Avenue 4
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=AI Developer | AI Developer | US Tech Solutions | Washington DC-Baltimore Area | Actively Hiring | 1 hour ago
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=AI ML Engineer | AI ML Engineer | SRM Digital LLC | Mason, OH | 23 hours ago
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=AI Robotics Engineer | AI Robotics Engineer | General Motors | Mountain View, CA | Actively Hiring | 8 hours a
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=AI Engineer | AI Engineer | ResortPass | New York, NY | 2 hours ago
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    message=🔍 Job Check: ID=None | Text=Machine Learning Engineer | Machine Learning Engineer | RK Infotech LLC | Florida, United States | 8 hours a
+2026-03-12 15:44:54 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:44:54 INFO    step=job_extract message=Finished Page 3: 0 NEW links saved. Total so far: 0/9999
+2026-03-12 15:44:54 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 15:44:54 INFO    step=job_extract message=Next button not found, using URL pagination...
+2026-03-12 15:44:54 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=75&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 15:45:00 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 15:45:00 INFO    step=job_extract message=All filters button not found. Attempting Guest Mode individual pills...
+2026-03-12 15:45:00 INFO    step=job_extract message=Dismissed guest modal.
+2026-03-12 15:45:06 INFO    step=job_extract message=Page 4 | 58.0m left
+2026-03-12 15:45:08 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 15:45:11 INFO    step=job_extract message=✅ Scrolling complete. Found 0 job cards to inspect.
+2026-03-12 15:45:12 INFO    step=job_extract message=Finished Page 4: 0 NEW links saved. Total so far: 0/9999
+2026-03-12 15:45:12 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 15:45:12 INFO    step=job_extract message=Next button not found, using URL pagination...
+2026-03-12 15:45:12 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=100&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 15:45:16 ERROR   message=Error processing location United States for keyword AI And Engineer: Message: invalid session id: session deleted as the browser has closed the connection
+from disconnected: not connected to DevTools
+  (Session info: chrome=145.0.7632.160); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#invalidsessionidexception
+Stacktrace:
+Symbols not available. Dumping unresolved backtrace:
+	0x645093
+	0x6450d4
+	0x43b490
+	0x42a43e
+	0x448ef3
+	0x4af00c
+	0x4c4df9
+	0x4a7f56
+	0x4796c9
+	0x47a484
+	0x897e34
+	0x8930c9
+	0x8b0add
+	0x65db38
+	0x6658ad
+	0x64d848
+	0x64da12
+	0x6375fa
+	0x75385d49
+	0x7751d83b
+	0x7751d7c1
+
+2026-03-12 15:45:16 INFO    message=Initializing browser for candidate_001...
+2026-03-12 15:45:16 INFO    message=Using absolute profile path: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\profiles\candidate_001
+2026-03-12 15:45:17 INFO    message=Chrome initialized successfully with forced version 144
+2026-03-12 15:45:17 INFO    message=Running without login (using profile or public search)...
+2026-03-12 15:45:17 INFO    message=  --- Keyword: AI And Engineer | Distance: 5 mi ---
+2026-03-12 15:45:17 DEBUG   message=Cleanup: No jobs older than 3 days found.
+2026-03-12 15:45:17 INFO    message=Starting extraction for: United States at 5mi with keyword 'AI And Engineer'
+2026-03-12 15:45:17 INFO    step=extract_init message=Extracting jobs for AI And Engineer: United States (Zipcode: United States)
+2026-03-12 15:45:17 INFO    message=📂 CSV file: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\exports\extractor_job_links.csv
+2026-03-12 15:45:17 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=0&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 15:45:21 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 15:45:21 INFO    step=job_extract message=All filters button not found. Attempting Guest Mode individual pills...
+2026-03-12 15:45:26 INFO    step=job_extract message=Page 1 | 59.0m left
+2026-03-12 15:45:28 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 15:45:30 INFO    step=job_extract message=✅ Scrolling complete. Found 0 job cards to inspect.
+2026-03-12 15:45:31 INFO    step=job_extract message=Finished Page 1: 0 NEW links saved. Total so far: 0/9999
+2026-03-12 15:45:31 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 15:45:31 INFO    step=job_extract message=Next button not found, using URL pagination...
+2026-03-12 15:45:31 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=25&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 15:45:36 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 15:45:36 INFO    step=job_extract message=All filters button not found. Attempting Guest Mode individual pills...
+2026-03-12 15:45:36 INFO    step=job_extract message=Dismissed guest modal.
+2026-03-12 15:45:37 INFO    step=job_extract message=Clicking Job Type pill for filters: ['Full-time', 'Contract']
+2026-03-12 15:45:39 INFO    step=job_extract message=Could not find any Job Type (Guest) filter labels in the UI.
+2026-03-12 15:45:41 WARNING message=⚠️ Run interrupted by user (Ctrl+C). Flushing all buffered jobs before exit...
+2026-03-12 15:45:41 INFO    message=No new jobs collected — nothing to flush.
+2026-03-12 15:45:41 INFO    message=✅ Daily Extraction completed.
+2026-03-12 15:46:13 INFO    message=✅ Selector sync complete: 25 selectors written to SQLite (data/bot_data.sqlite)
+2026-03-12 15:46:13 INFO    message=Loaded 1 active candidates from YAML.
+2026-03-12 15:46:13 INFO    message=Using search settings: Distance=50mi, Location=United States, Timespan=24h (r86400), DryRun=False
+2026-03-12 15:46:13 INFO    message=Loaded API token from local cache.
+2026-03-12 15:46:13 INFO    message=Initialized APIStore for: https://api.whitebox-learning.com/api/positions/
+2026-03-12 15:46:13 INFO    message=--- Processing Candidate: candidate_001 (psunil55433@gmail.com) ---
+2026-03-12 15:46:13 INFO    message=Keywords: ['AI And Engineer', 'LLM And Engineer']
+2026-03-12 15:46:13 INFO    message=Locations: None
+2026-03-12 15:46:13 INFO    message=Candidate candidate_001 has no locations. Using default: United States
+2026-03-12 15:46:13 INFO    message=--- Starting Keyword Sequential Pass: AI And Engineer ---
+2026-03-12 15:46:13 INFO    message=Initializing browser for candidate_001...
+2026-03-12 15:46:13 INFO    message=Using absolute profile path: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\profiles\candidate_001
+2026-03-12 15:46:16 INFO    message=Chrome initialized successfully with forced version 144
+2026-03-12 15:46:16 INFO    step=login event=start message=Checking login status...
+2026-03-12 15:46:20 INFO    step=login event=success message=Already logged in.
+2026-03-12 15:46:20 INFO    message=  --- Keyword: AI And Engineer | Distance: 5 mi ---
+2026-03-12 15:46:20 DEBUG   message=Cleanup: No jobs older than 3 days found.
+2026-03-12 15:46:20 INFO    message=Starting extraction for: United States at 5mi with keyword 'AI And Engineer'
+2026-03-12 15:46:20 INFO    step=extract_init message=Extracting jobs for AI And Engineer: United States (Zipcode: United States)
+2026-03-12 15:46:20 INFO    message=📂 CSV file: C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\data\exports\extractor_job_links.csv
+2026-03-12 15:46:20 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=0&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 15:46:28 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 15:46:28 INFO    step=job_extract message=All filters button not found. Attempting Guest Mode individual pills...
+2026-03-12 15:46:29 INFO    step=job_extract message=Dismissed guest modal.
+2026-03-12 15:46:35 INFO    step=job_extract message=Page 1 | 59.0m left
+2026-03-12 15:46:37 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 15:46:40 INFO    step=job_extract message=✅ Scrolling complete. Found 0 job cards to inspect.
+2026-03-12 15:46:41 INFO    step=job_extract message=Finished Page 1: 0 NEW links saved. Total so far: 0/9999
+2026-03-12 15:46:41 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 15:46:41 INFO    step=job_extract message=Next button not found, using URL pagination...
+2026-03-12 15:46:41 INFO    step=job_extract event=navigation message=Navigating to: https://www.linkedin.com/jobs/search/?keywords=AI%20And%20Engineer&location=United States&f_TPR=r86400&start=25&f_D=5&distance=5&sortBy=DD&origin=JOB_SEARCH_PAGE_LOCATION_AUTOCOMPLETE&refresh=true
+2026-03-12 15:46:47 INFO    step=job_extract message=Applying native Title filters via UI...
+2026-03-12 15:46:59 INFO    message=✅ Checked Title filter: 'Artificial Intelligence Engineer'
+2026-03-12 15:46:59 INFO    message=✅ Checked Title filter: 'Machine Learning Engineer'
+2026-03-12 15:47:06 INFO    message=✅ Checked Job Type filter: 'Full-time'
+2026-03-12 15:47:06 INFO    message=✅ Checked Job Type filter: 'Contract'
+2026-03-12 15:47:20 INFO    step=job_extract message=Successfully applied native filters.
+2026-03-12 15:47:20 INFO    step=job_extract message=💾 Cached Title Filter IDs: 30128%2C25206
+2026-03-12 15:47:20 INFO    step=job_extract message=💾 Cached Job Type IDs: F%2CC
+2026-03-12 15:47:26 INFO    step=job_extract message=Page 2 | 58.0m left
+2026-03-12 15:47:28 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 15:47:32 INFO    step=job_extract message=✅ Scrolling complete. Found 8 job cards to inspect.
+2026-03-12 15:47:33 INFO    message=🔍 Job Check: ID=4384397620 | Text=AI/ML Engineer | AI/ML Engineer with verification | Fintech | Tampa, FL (Hybrid) | 401(k), Medical, Dental, 
+2026-03-12 15:47:33 INFO    message=⏭️ Skipping 4384397620 - already seen (duplicate)
+2026-03-12 15:47:33 INFO    message=🔍 Job Check: ID=4383970751 | Text=Senior Computer Vision & C++ Engineer (Classical Vision — Non-AI) | Senior Computer Vision & C++ Engin
+2026-03-12 15:47:33 INFO    message=✅ Found EASY APPLY job: 4383970751
+2026-03-12 15:47:34 DEBUG   message=Failed to save job 4383970751: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:34 INFO    message=🔍 Job Check: ID=None | Text=Company review time is typically 1 week
+2026-03-12 15:47:34 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:47:34 INFO    message=🔍 Job Check: ID=4385149174 | Text=Engineer I- Software Edge AI | Engineer I- Software Edge AI with verification | Microchip Technology Inc
+2026-03-12 15:47:34 INFO    message=✅ Found STANDARD job: 4385149174
+2026-03-12 15:47:36 DEBUG   message=Failed to save job 4385149174: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:36 INFO    message=🔍 Job Check: ID=4370201993 | Text=Platform Solutions Engineer - Knowledge Management & AI Integration | Platform Solutions Engineer - Kn
+2026-03-12 15:47:36 INFO    message=✅ Found STANDARD job: 4370201993
+2026-03-12 15:47:37 DEBUG   message=Failed to save job 4370201993: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:37 INFO    message=🔍 Job Check: ID=4383977441 | Text=AI Engineer | AI Engineer | GEI Consultants, Inc. | Cary, NC (On-site) | $110K/yr - $150K/yr · 401(k), +1 be
+2026-03-12 15:47:37 INFO    message=✅ Found STANDARD job: 4383977441
+2026-03-12 15:47:38 DEBUG   message=Failed to save job 4383977441: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:38 INFO    message=🔍 Job Check: ID=4383962963 | Text=Azure AI/ML Engineer | Azure AI/ML Engineer | Smart IT Frame LLC | Houston, TX (On-site) | 25 minutes ago | Wi
+2026-03-12 15:47:38 INFO    message=✅ Found EASY APPLY job: 4383962963
+2026-03-12 15:47:40 DEBUG   message=Failed to save job 4383962963: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:40 INFO    message=🔍 Job Check: ID=4383966481 | Text=AI Engineer | AI Engineer | Spacetime Agents | San Francisco Bay Area (Remote) | 28 minutes ago | Within the p
+2026-03-12 15:47:40 INFO    message=✅ Found EASY APPLY job: 4383966481
+2026-03-12 15:47:41 DEBUG   message=Failed to save job 4383966481: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:42 INFO    message=🔍 Job Check: ID=4384397620 | Text=AI/ML Engineer | AI/ML Engineer with verification | Fintech | Tampa, FL (Hybrid) | 401(k), Medical, Dental, 
+2026-03-12 15:47:42 INFO    message=⏭️ Skipping 4384397620 - already seen (duplicate)
+2026-03-12 15:47:42 INFO    message=🔍 Job Check: ID=4383970751 | Text=Senior Computer Vision & C++ Engineer (Classical Vision — Non-AI) | Senior Computer Vision & C++ Engin
+2026-03-12 15:47:42 INFO    message=⏭️ Skipping 4383970751 - already processed on this page
+2026-03-12 15:47:42 INFO    message=🔍 Job Check: ID=None | Text=Company review time is typically 1 week
+2026-03-12 15:47:42 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:47:42 INFO    message=🔍 Job Check: ID=4385149174 | Text=Engineer I- Software Edge AI | Engineer I- Software Edge AI with verification | Microchip Technology Inc
+2026-03-12 15:47:42 INFO    message=⏭️ Skipping 4385149174 - already processed on this page
+2026-03-12 15:47:42 INFO    message=🔍 Job Check: ID=4370201993 | Text=Platform Solutions Engineer - Knowledge Management & AI Integration | Platform Solutions Engineer - Kn
+2026-03-12 15:47:42 INFO    message=⏭️ Skipping 4370201993 - already processed on this page
+2026-03-12 15:47:42 INFO    message=🔍 Job Check: ID=4383977441 | Text=AI Engineer | AI Engineer | GEI Consultants, Inc. | Cary, NC (On-site) | $110K/yr - $150K/yr · 401(k), +1 be
+2026-03-12 15:47:42 INFO    message=⏭️ Skipping 4383977441 - already processed on this page
+2026-03-12 15:47:42 INFO    message=🔍 Job Check: ID=4383962963 | Text=Azure AI/ML Engineer | Azure AI/ML Engineer | Smart IT Frame LLC | Houston, TX (On-site) | Viewed | Easy Apply
+2026-03-12 15:47:42 INFO    message=⏭️ Skipping 4383962963 - already processed on this page
+2026-03-12 15:47:42 INFO    message=🔍 Job Check: ID=4383966481 | Text=AI Engineer | AI Engineer | Spacetime Agents | San Francisco Bay Area (Remote) | Viewed | Easy Apply
+2026-03-12 15:47:42 INFO    message=⏭️ Skipping 4383966481 - already processed on this page
+2026-03-12 15:47:42 INFO    step=job_extract message=Finished Page 2: 6 NEW links saved. Total so far: 6/9999
+2026-03-12 15:47:42 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 15:47:42 INFO    step=job_extract message=Clicking NEXT button...
+2026-03-12 15:47:47 INFO    step=job_extract message=Page 3 | 58.0m left
+2026-03-12 15:47:49 INFO    step=job_extract message=Starting scroll routine...
+2026-03-12 15:47:53 INFO    step=job_extract message=✅ Scrolling complete. Found 10 job cards to inspect.
+2026-03-12 15:47:54 INFO    message=🔍 Job Check: ID=4383958908 | Text=Intern, AI Engineer | Intern, AI Engineer with verification | Cast & Crew | Burbank, CA (Hybrid) | Viewed
+2026-03-12 15:47:54 INFO    message=✅ Found STANDARD job: 4383958908
+2026-03-12 15:47:55 DEBUG   message=Failed to save job 4383958908: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:55 INFO    message=🔍 Job Check: ID=4381730879 | Text=Founding AI/ML Engineer (Production) - NYC - $250k-$500k+ + Founding Equity | Founding AI/ML Engineer 
+2026-03-12 15:47:55 INFO    message=⏭️ Skipping 4381730879 - already seen (duplicate)
+2026-03-12 15:47:55 INFO    message=🔍 Job Check: ID=None | Text=Actively reviewing applicants
+2026-03-12 15:47:55 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:47:55 INFO    message=🔍 Job Check: ID=4383960801 | Text=Software Development Engineer, Database (OpenSearch), AI & Data Platforms (AiDP) | Software Developmen
+2026-03-12 15:47:55 INFO    message=✅ Found STANDARD job: 4383960801
+2026-03-12 15:47:57 DEBUG   message=Failed to save job 4383960801: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:57 INFO    message=🔍 Job Check: ID=4374529635 | Text=AI Developer | AI Developer with verification | US Tech Solutions | Washington DC-Baltimore Area (Hybrid) | 
+2026-03-12 15:47:57 INFO    message=✅ Found EASY APPLY job: 4374529635
+2026-03-12 15:47:58 DEBUG   message=Failed to save job 4374529635: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:58 INFO    message=🔍 Job Check: ID=None | Text=Actively reviewing applicants
+2026-03-12 15:47:58 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:47:58 INFO    message=🔍 Job Check: ID=4385129390 | Text=AI Developer Experience | AI Developer Experience | Mashgin | Palo Alto, CA (Hybrid) | $185K/yr - $275K/yr ·
+2026-03-12 15:47:58 INFO    message=✅ Found STANDARD job: 4385129390
+2026-03-12 15:47:59 DEBUG   message=Failed to save job 4385129390: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:47:59 INFO    message=🔍 Job Check: ID=4380492447 | Text=Machine Learning Engineer | Machine Learning Engineer | Shields Group Search | San Francisco, CA (On-site)
+2026-03-12 15:47:59 INFO    message=⏭️ Skipping 4380492447 - already seen (duplicate)
+2026-03-12 15:47:59 INFO    message=🔍 Job Check: ID=None | Text=Actively reviewing applicants
+2026-03-12 15:47:59 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:47:59 INFO    message=🔍 Job Check: ID=4383961736 | Text=Software Engineer, AI/ML, App Ads Quality | Software Engineer, AI/ML, App Ads Quality with verificatio
+2026-03-12 15:48:00 INFO    message=✅ Found STANDARD job: 4383961736
+2026-03-12 15:48:01 DEBUG   message=Failed to save job 4383961736: cannot import name 'get_locator' from 'bot.utils.selectors' (C:\Users\KUMAR-MINI-PC-7\non eassy\project-bot-non-easy-apply-job-extractor\bot\utils\selectors.py)
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=4383958908 | Text=Intern, AI Engineer | Intern, AI Engineer with verification | Cast & Crew | Burbank, CA (Hybrid) | Viewed
+2026-03-12 15:48:02 INFO    message=⏭️ Skipping 4383958908 - already processed on this page
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=4381730879 | Text=Founding AI/ML Engineer (Production) - NYC - $250k-$500k+ + Founding Equity | Founding AI/ML Engineer 
+2026-03-12 15:48:02 INFO    message=⏭️ Skipping 4381730879 - already seen (duplicate)
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=None | Text=Actively reviewing applicants
+2026-03-12 15:48:02 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=4383960801 | Text=Software Development Engineer, Database (OpenSearch), AI & Data Platforms (AiDP) | Software Developmen
+2026-03-12 15:48:02 INFO    message=⏭️ Skipping 4383960801 - already processed on this page
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=4374529635 | Text=AI Developer | AI Developer with verification | US Tech Solutions | Washington DC-Baltimore Area (Hybrid) | 
+2026-03-12 15:48:02 INFO    message=⏭️ Skipping 4374529635 - already processed on this page
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=None | Text=Actively reviewing applicants
+2026-03-12 15:48:02 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=4385129390 | Text=AI Developer Experience | AI Developer Experience | Mashgin | Palo Alto, CA (Hybrid) | $185K/yr - $275K/yr ·
+2026-03-12 15:48:02 INFO    message=⏭️ Skipping 4385129390 - already processed on this page
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=4380492447 | Text=Machine Learning Engineer | Machine Learning Engineer | Shields Group Search | San Francisco, CA (On-site)
+2026-03-12 15:48:02 INFO    message=⏭️ Skipping 4380492447 - already seen (duplicate)
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=None | Text=Actively reviewing applicants
+2026-03-12 15:48:02 INFO    message=❌ Skipping - no job ID found
+2026-03-12 15:48:02 INFO    message=🔍 Job Check: ID=4383961736 | Text=Software Engineer, AI/ML, App Ads Quality | Software Engineer, AI/ML, App Ads Quality with verificatio
+2026-03-12 15:48:02 INFO    message=⏭️ Skipping 4383961736 - already processed on this page
+2026-03-12 15:48:02 INFO    step=job_extract message=Finished Page 3: 5 NEW links saved. Total so far: 11/9999
+2026-03-12 15:48:02 INFO    step=job_extract message=📥 Buffer now holds 0 jobs total (flush at end of run)
+2026-03-12 15:48:02 INFO    step=job_extract message=Clicking NEXT button...
+2026-03-12 15:48:07 INFO    step=job_extract message=Page 4 | 58.0m left
+2026-03-12 15:48:09 WARNING message=⚠️ Run interrupted by user (Ctrl+C). Flushing all buffered jobs before exit...
+2026-03-12 15:48:09 INFO    message=No new jobs collected — nothing to flush.
+2026-03-12 15:48:09 INFO    message=✅ Daily Extraction completed.

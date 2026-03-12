@@ -628,7 +628,7 @@ class JobExtractor(Search):
             location = search_location
             
             # Fallback for Company/Location: Look for aria-labels in child elements for better precision
-            from bot.utils.selectors import get_locator
+            from bot.utils.selector_helpers import get_locator
             
             try:
                 # Try primary and fallback for company
@@ -679,7 +679,7 @@ class JobExtractor(Search):
                 logger.info(f"⚡ Easy Apply job — using LinkedIn URL directly, skipping ATS extraction.", step="extract_job")
             else:
                 try:
-                    from bot.utils.selectors import get_locator
+                    from bot.utils.selector_helpers import get_locator
                     from bot.utils.url_utils import decode_linkedin_redir
                     
                     # Wait longer for details pane to stabilize

@@ -18,7 +18,7 @@ class Session:
         self.browser.get("https://www.linkedin.com/feed/")
         time.sleep(3)
         
-        if "feed" in self.browser.current_url or self.browser.title == "LinkedIn":
+        if "feed" in self.browser.current_url:
              logger.info("Already logged in.", step="login", event="success")
              return
 
