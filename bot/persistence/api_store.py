@@ -76,6 +76,7 @@ class APIStore:
             "source_uid": source_val,
             "source_job_id": source_val,
             "status": "open",
+            "job_url_type": job_data.get('job_url_type', '')
         }
 
         # Derive zip from location if still empty

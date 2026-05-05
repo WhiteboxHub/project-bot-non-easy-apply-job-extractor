@@ -101,6 +101,7 @@ def run_extraction():
         return
 
     browser = None
+    interrupted = False
     try:
         for cand in candidates:
             try:
@@ -254,7 +255,7 @@ def run_extraction():
         api_store.close()
         logger.info("✅ Daily Extraction completed.")
 
-        status_val = "interrupted" if 'interrupted' in locals() and interrupted else "success"
+        status_val = "interrupted" if interrupted else "success"
         
         return {
             "jobs_saved": buffered,

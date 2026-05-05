@@ -21,10 +21,12 @@ from bot.discovery.scroll_tracker import ScrollTracker
 from bot.persistence.store import Store
 from bot.persistence.api_store import APIStore
 from bot.utils.human_interaction import HumanInteraction
+from bot.utils.url_utils import get_job_url_type
 
 import csv
 import os
 import re
+from datetime import datetime
 from bot.utils.selectors import LOCATORS
 from bot.utils.selector_helpers import get_locator, UI_TEXT
 
@@ -55,10 +57,11 @@ class JobExtractor(Search):
             self.blacklist = blacklist
         
         # Initialize CSV if provided
+        # Initialize CSV if provided
         if self.csv_path and not os.path.exists(self.csv_path):
             with open(self.csv_path, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
-                writer.writerow(['source_job_id', 'title', 'company', 'location', 'zipcode', 'linkedin_url', 'apply_url', 'date_extracted', 'is_non_easy_apply'])
+                writer.writerow(['source_job_id', 'title', 'company', 'location', 'zipcode', 'linkedin_url', 'apply_url', 'date_extracted', 'is_non_easy_apply', 'job_url_type'])
         
         # batch_buffer lives on api_store now (shared across all distance buckets)
 
@@ -878,12 +881,13 @@ class JobExtractor(Search):
              )
             self.store.con.commit()
              
+            job_url_type = get_job_url_type(apply_url, is_easy_apply)
             # CSV Save
             if self.csv_path:
                 with open(self.csv_path, 'a', newline='', encoding='utf-8') as f:
                     writer = csv.writer(f, quoting=csv.QUOTE_NONNUMERIC)
-                    # format: source_job_id, title, company, location, zipcode, linkedin_url, apply_url, date_extracted, is_non_easy_apply
-                    writer.writerow([job_id, title, company, location, zipcode, linkedin_url, apply_url, time.strftime('%Y-%m-%d %H:%M:%S'), not is_easy_apply])
+                    # format: source_job_id, title, company, location, zipcode, linkedin_url, apply_url, date_extracted, is_non_easy_apply, job_url_type
+                    writer.writerow([job_id, title, company, location, zipcode, linkedin_url, apply_url, time.strftime('%Y-%m-%d %H:%M:%S'), not is_easy_apply, job_url_type])
                 
             # API Save (Remote)
             job_data = {
@@ -894,7 +898,8 @@ class JobExtractor(Search):
                 'url': linkedin_url,
                 'apply_url': apply_url,
                 'source_job_id': job_id,
-                'is_easy_apply': is_easy_apply
+                'is_easy_apply': is_easy_apply,
+                'job_url_type': job_url_type
             }
             if self.api_store:
                 # Accumulate in the shared api_store buffer

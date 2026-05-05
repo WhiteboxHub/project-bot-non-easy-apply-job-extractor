@@ -44,14 +44,15 @@ class MySQLStore:
         query = """
         INSERT INTO position (
             title, company_name, location, city, state, zip, country,
-            job_url, source, source_uid, status, created_at, updated_at
+            job_url, source, source_uid, status, created_at, updated_at, job_url_type
         ) VALUES (
             %s, %s, %s, %s, %s, %s, %s,
-            %s, 'linkedin', %s, 'open', NOW(), NOW()
+            %s, 'linkedin', %s, 'open', NOW(), NOW(), %s
         )
         ON DUPLICATE KEY UPDATE
             updated_at = NOW(),
-            status = 'open'
+            status = 'open',
+            job_url_type = VALUES(job_url_type)
         """
         
         # Try to parse city/state from location "City, State" or "City, Country"
@@ -76,7 +77,8 @@ class MySQLStore:
             zipcode,
             country,
             job_data.get('apply_url') or job_data.get('url', ''),
-            job_data.get('job_id', '')
+            job_data.get('job_id', ''),
+            job_data.get('job_url_type', '')
         )
 
         try:
